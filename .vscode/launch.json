@@ -1,0 +1,57 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Debug (Launch)",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "stopOnEntry": false,
+            "mainClass": "",
+            "args": ""
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Main",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "stopOnEntry": false,
+            "mainClass": "problem.Main",
+            "classPaths": [
+                "/Users/frederiklund/Documents/School/AI/AI-Assignment1/build/classes"
+            ],
+            "args": ""
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Tester",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "stopOnEntry": false,
+            "mainClass": "tester.Tester",
+            "classPaths": [
+                "/Users/frederiklund/Documents/School/AI/AI-Assignment1/build/classes"
+            ],
+            "args": "input1.txt output1.txt"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Visualiser",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "stopOnEntry": false,
+            "mainClass": "visualiser.Visualiser",
+            "classPaths": [
+                "/Users/frederiklund/Documents/School/AI/AI-Assignment1/build/classes"
+            ],
+            "args": ""
+        }
+    ]
+}

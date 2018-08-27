@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Assignment1" default="all">
+    <target name="clean">
+        <delete dir="build"/>
+        <delete file="assignment1.jar"/>
+    </target>
+
+    <target name="compile">
+        <mkdir dir="build/classes"/>
+        <javac srcdir="src" destdir="build/classes"/>
+    </target>
+
+    <target name="all" depends="compile">
+        <jar destfile="./assignment1.jar" basedir="build/classes">
+            <manifest>
+                <!-- Uncomment the line for the desired main class -->
+                <attribute name="Main-Class" value="problem.Main"/>
+                <!--<attribute name="Main-Class" value="navigation.NavigationSolver"/>-->
+            </manifest>
+        </jar>
+    </target>
+</project>
