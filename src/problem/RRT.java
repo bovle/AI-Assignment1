@@ -160,11 +160,16 @@ public class RRT {
             return false;
 
         for (int i = 0; i < obstacles.size(); i++) {
-            if (obstacles.get(i).intersectsLine(robotLine))
+            if (grow(obstacles.get(i), -0.0001).intersectsLine(robotLine))
                 return false;
         }
 
         return true;
+    }
+
+    public Rectangle2D grow(Rectangle2D rect, double delta) {
+        return new Rectangle2D.Double(rect.getX() - delta, rect.getY() - delta, rect.getWidth() + 2 * delta,
+                rect.getHeight() + 2 * delta);
     }
 
     public double distToNearestForbidden(RobotConfig config) {

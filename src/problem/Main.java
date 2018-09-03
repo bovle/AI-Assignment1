@@ -28,7 +28,7 @@ public class Main {
             RRT rrt = new RRT();
             List<RobotConfig> path = rrt.calculatePath(ps.getInitialRobotConfig(),
                     new RobotConfig(new double[] { 0.2, 0.0499 }, 0.0), ps.getRobotWidth(), obstacles);
-            outputPath(path);
+            outputPath(path, obstacles);
 
         } catch (IOException e) {
             System.out.println("IO Exception occured");
@@ -37,15 +37,20 @@ public class Main {
 
     }
 
-    public static void outputPath(List<RobotConfig> path) throws IOException {
+    public static void outputPath(List<RobotConfig> path, List<Rectangle2D> obstacles) throws IOException {
         FileWriter fw = new FileWriter("output.txt");
         PrintWriter pw = new PrintWriter(fw);
         pw.println(path.size());
+        String obstacleString = "";
+        for (int i = 0; i < obstacles.size(); i++) {
+            obstacleString += " " + obstacles.get(i).getCenterX() + " " + obstacles.get(i).getCenterY();
+        }
         for (int i = 0; i < path.size(); i++) {
             double x = path.get(i).getPos().getX();
             double y = path.get(i).getPos().getY();
             double angle = path.get(i).getOrientation();
-            pw.println(x + " " + y + " " + angle + " 0.2 0.1 0.35 0.1 0.09 0.05");
+
+            pw.println(x + " " + y + " " + angle + obstacleString);
         }
         pw.close();
     }
