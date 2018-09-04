@@ -32,7 +32,7 @@ public class ProblemSpec {
 	/** The static obstacles */
 	private List<StaticObstacle> staticObstacles;
 
-	/** The static obstacles */
+	/** The robot width */
 	private double robotWidth;
 
 	/** The initial configuration */
