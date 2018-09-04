@@ -17,7 +17,7 @@ public class GridNode implements Comparable<GridNode> {
   /**
    * Creates a root gridNode, the starting node
    */
-  public GridNode(double hCost, Point2D pos) {
+  public GridNode(double hCost, Point2D pos, double gridWidth) {
     this.parent = null;
     this.type = GridType.FREE; /* assuming we don't start on a obstacle */
     this.gCost = 0;
@@ -26,32 +26,31 @@ public class GridNode implements Comparable<GridNode> {
     this.depth = 0;
     this.pos = pos;
     this.neighbours = new Neighbour[4];
-    this.setNeighbours();
+    this.setNeighbours(gridWidth);
   }
 
   /**
    * Creates a non-root gridNode,
    */
-  public GridNode(GridNode parent, GridType type, double hCost, Point2D pos) {
+  public GridNode(GridNode parent, GridType type, double hCost, Point2D pos, double gridWidth) {
     this.parent = parent;
     /* gCost: assume the cost increases with the width of the "gridcell" for every step you take.
      * todo: Room for improvement: extra cost if making a turn or if it's a moving obstacle
      */
     this.type = type;
-    this.gCost = parent.gCost + 0.05; //todo: update with generic grid width instead of 0.05
+    this.gCost = parent.gCost + gridWidth;
     this.hCost = hCost;
     this.fCost = this.gCost + this.hCost;
     this.depth = 0;
     this.pos = pos;
     this.neighbours = new Neighbour[4];
-    this.setNeighbours();
+    this.setNeighbours(gridWidth);
   }
 
 
-  private void setNeighbours() {
+  private void setNeighbours(double gridWidth) {
     double currentX = this.pos.getX();
     double currentY = this.pos.getY();
-    double gridWidth = 0.05;
     Point2D[] points = {
       new Point2D.Double(currentX,             currentY + gridWidth),
       new Point2D.Double(currentX + gridWidth, currentY),

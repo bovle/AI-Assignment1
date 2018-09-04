@@ -12,20 +12,16 @@ import java.util.PriorityQueue;
 public class Astar {
   private PriorityQueue<GridNode> open;
   private List<GridNode> evaluated;
-  private Point2D start;
-  private Point2D goal;
 
-  public Astar(Point2D start, Point2D goal) {
-    this.start = start;
-    this.goal = goal;
+  public Astar() {
     this.open = new PriorityQueue<GridNode>();
     this.evaluated = new ArrayList<GridNode>();
   }
 
-  public List<GridNode> search() {
+  public List<GridNode> search(Point2D start, Point2D goal, double gridWidth) {
     // hCost from start to goal: manhattan distance
-    double hCost = calculateHcost(this.start, this.goal);
-    open.add(new GridNode(hCost, start));
+    double hCost = calculateHcost(start, goal);
+    open.add(new GridNode(hCost, start, gridWidth));
 
     while(open.size() > 0) {
       GridNode currentNode = (GridNode)open.poll();
@@ -49,7 +45,8 @@ public class Astar {
       for(Neighbour n : currentNode.neighbours) {
         if(!(n.type == GridType.STAT_OBS || n.isInList(this.evaluated))) {
           GridNode neighbourInOpen = n.isInPrioQueue(this.open);
-          double newPathCost = currentNode.gCost + 0.05;
+          // todo: improve the calculation of cost
+          double newPathCost = currentNode.gCost + gridWidth;
 
           if(neighbourInOpen == null || ( neighbourInOpen != null && newPathCost < neighbourInOpen.gCost)) {
             if(neighbourInOpen != null) {
@@ -58,8 +55,8 @@ public class Astar {
               neighbourInOpen.parent = currentNode;
             }
             else {
-              double newHcost = calculateHcost(n.pos, this.goal);
-              GridNode newNeighbour = new GridNode(currentNode, GridType.FREE, newHcost, n.pos);
+              double newHcost = calculateHcost(n.pos, goal);
+              GridNode newNeighbour = new GridNode(currentNode, GridType.FREE, newHcost, n.pos, gridWidth);
               this.open.add(newNeighbour);
             }
           }
@@ -82,7 +79,8 @@ public class Astar {
    */
   private void reset() {
       open.clear();
-      // todo
+      this.evaluated = new ArrayList<GridNode>();
+      // todo: is there a better wya to clear an ArrayList?
   }
 
 }

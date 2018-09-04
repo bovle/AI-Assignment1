@@ -72,8 +72,9 @@ public class Main {
       System.out.println("Start position: " + start);
       Point2D goal = ps.getMovingBoxEndPositions().get(0);
 
-      Astar agent = new Astar(start, goal);
-      List<GridNode> path = (List<GridNode>)agent.search();
+      Astar agent = new Astar();
+      double gridWidth = ps.getRobotWidth();
+      List<GridNode> path = (List<GridNode>)agent.search(start, goal, gridWidth);
       String s = "";
       for(GridNode g : path) {
         s += g.pos.toString() + "\n";
