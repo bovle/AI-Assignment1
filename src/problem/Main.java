@@ -1,6 +1,7 @@
 package problem;
 
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.Point2D;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -35,6 +36,8 @@ public class Main {
         }
         System.out.println("Finished loading!");
 
+        astarTest();
+
     }
 
     public static void outputPath(List<RobotConfig> path, List<Rectangle2D> obstacles) throws IOException {
@@ -53,5 +56,28 @@ public class Main {
             pw.println(x + " " + y + " " + angle + obstacleString);
         }
         pw.close();
+    }
+
+    private static void astarTest() {
+      ProblemSpec ps = new ProblemSpec();
+      try {
+        ps.loadProblem("inputEasy.txt");
+      } catch (IOException e) {
+          System.out.println("IO Exception occured");
+      }
+
+      List<Box> movingBoxes = ps.getMovingBoxes();
+      Box b = movingBoxes.get(0);
+      Point2D start = b.getPos();
+      System.out.println("Start position: " + start);
+      Point2D goal = ps.getMovingBoxEndPositions().get(0);
+
+      Astar agent = new Astar(start, goal);
+      List<GridNode> path = (List<GridNode>)agent.search();
+      String s = "";
+      for(GridNode g : path) {
+        s += g.pos.toString() + "\n";
+      }
+      System.out.println(s);
     }
 }
