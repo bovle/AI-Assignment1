@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 
-
 public class Astar {
   private PriorityQueue<GridNode> open;
   private List<GridNode> evaluated;
@@ -23,16 +22,17 @@ public class Astar {
     double hCost = calculateHcost(start, goal);
     open.add(new GridNode(hCost, start, gridWidth));
 
-    while(open.size() > 0) {
-      GridNode currentNode = (GridNode)open.poll();
+    while (open.size() > 0) {
+      GridNode currentNode = (GridNode) open.poll();
 
       // if goal found
       if (Util.equalPositions(currentNode.pos, goal)) {
         List<GridNode> pathToGoal = new LinkedList<GridNode>();
         while (currentNode.parent != null) {
-            pathToGoal.add(currentNode);
-            currentNode = currentNode.parent;
+          pathToGoal.add(currentNode);
+          currentNode = currentNode.parent;
         }
+        pathToGoal.add(currentNode);
         Collections.reverse(pathToGoal);
 
         // reset for next search
@@ -42,19 +42,18 @@ public class Astar {
       }
 
       // For each neighbour...
-      for(Neighbour n : currentNode.neighbours) {
-        if(!(n.type == GridType.STAT_OBS || n.isInList(this.evaluated))) {
+      for (Neighbour n : currentNode.neighbours) {
+        if (!(n.type == GridType.STAT_OBS || n.isInList(this.evaluated))) {
           GridNode neighbourInOpen = n.isInPrioQueue(this.open);
           // todo: improve the calculation of cost
           double newPathCost = currentNode.gCost + gridWidth;
 
-          if(neighbourInOpen == null || ( neighbourInOpen != null && newPathCost < neighbourInOpen.gCost)) {
-            if(neighbourInOpen != null) {
+          if (neighbourInOpen == null || (neighbourInOpen != null && newPathCost < neighbourInOpen.gCost)) {
+            if (neighbourInOpen != null) {
               neighbourInOpen.gCost = newPathCost;
               neighbourInOpen.fCost = neighbourInOpen.hCost + neighbourInOpen.gCost;
               neighbourInOpen.parent = currentNode;
-            }
-            else {
+            } else {
               double newHcost = calculateHcost(n.pos, goal);
               GridNode newNeighbour = new GridNode(currentNode, GridType.FREE, newHcost, n.pos, gridWidth);
               this.open.add(newNeighbour);
@@ -68,7 +67,6 @@ public class Astar {
     return null;
   }
 
-
   private double calculateHcost(Point2D start, Point2D goal) {
     return Math.abs(start.getX() - goal.getX()) + Math.abs(start.getY() - goal.getY());
   }
@@ -78,9 +76,9 @@ public class Astar {
    * search request).
    */
   private void reset() {
-      open.clear();
-      this.evaluated = new ArrayList<GridNode>();
-      // todo: is there a better wya to clear an ArrayList?
+    open.clear();
+    this.evaluated = new ArrayList<GridNode>();
+    // todo: is there a better wya to clear an ArrayList?
   }
 
 }

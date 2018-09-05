@@ -19,7 +19,6 @@ public class RRT {
 
     public List<RobotConfig> calculatePath(RobotConfig startConfig, RobotConfig goalConfig, double robotWidth,
             List<Rectangle2D> obstacles) {
-
         this.robotWidth = robotWidth;
         this.angleStepSize = Math.asin(0.0005 / (robotWidth / 2)) * 2;
         this.obstacles = obstacles;
@@ -47,11 +46,10 @@ public class RRT {
             List<RobotConfig> middleToGoal = treeToPath(goalTree.get(goalTree.size() - 1), goalTree.get(0));
             path.addAll(startToMiddle);
             path.addAll(middleToGoal.subList(1, middleToGoal.size() - 1));
-            System.out.println("success");
+            return path;
         } else {
-            System.out.println("failure");
+            return null;
         }
-        return path;
     }
 
     private List<RobotConfig> treeToPath(TreeNode leaf, TreeNode root) {
@@ -160,8 +158,9 @@ public class RRT {
             return false;
 
         for (int i = 0; i < obstacles.size(); i++) {
-            if (grow(obstacles.get(i), -0.0001).intersectsLine(robotLine))
+            if (grow(obstacles.get(i), -0.0001).intersectsLine(robotLine)) {
                 return false;
+            }
         }
 
         return true;
@@ -256,7 +255,7 @@ public class RRT {
             currentRotationPart += rotationPart;
             path.add(currentConfig);
         }
-        if (currentConfig.getPos().distance(goalConfig.getPos()) > 0.0001) {
+        if (!Util.equalPositions(currentConfig.getPos(), goalConfig.getPos())) {
             currentConfig = new RobotConfig(goalConfig.getPos(), currentConfig.getOrientation());
             path.add(currentConfig);
         }
@@ -269,9 +268,7 @@ public class RRT {
     }
 
     private RobotConfig translate(RobotConfig config, double angle) {
-        double nextX = 0.001 * Math.cos(angle) + config.getPos().getX();
-        double nextY = 0.001 * Math.sin(angle) + config.getPos().getY();
-        return new RobotConfig(new double[] { nextX, nextY }, config.getOrientation());
+        return new RobotConfig(Util.translateOneStep(config.getPos(), angle), config.getOrientation());
     }
 
     private RobotConfig rotate(RobotConfig config, boolean isClockWise) {

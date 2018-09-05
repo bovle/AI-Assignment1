@@ -1,7 +1,9 @@
 package problem;
+
 import static tester.Tester.*; // to use MAX_ERROR
 
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.lang.Math;
 
 public class Util {
@@ -19,5 +21,19 @@ public class Util {
   public static GridType findGridType(Point2D p) {
     // todo1: return STAT_OBS for walls/staticObstacles
     return GridType.FREE;
+  }
+
+  public static Point2D translateOneStep(Point2D position, double angle) {
+    double nextX = 0.001 * Math.cos(angle) + position.getX();
+    double nextY = 0.001 * Math.sin(angle) + position.getY();
+    return new Point2D.Double(nextX, nextY);
+  }
+
+  public static Rectangle2D pointToRect(Point2D pos, double width) {
+    return new Rectangle2D.Double(pos.getX() - (width / 2), pos.getY() - (width / 2), width, width);
+  }
+
+  public static Point2D rectToPoint(Rectangle2D rect) {
+    return new Point2D.Double(rect.getCenterX(), rect.getCenterY());
   }
 }
