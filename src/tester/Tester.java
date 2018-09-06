@@ -74,6 +74,7 @@ public class Tester {
         List<Box> finalState = ps.getMovingBoxPath().get(ps.getMovingBoxPath().size() - 1);
         int count = 0;
         for (int i = 0; i < finalState.size(); i++) {
+            // goals should be within max_error
             if (finalState.get(i).getPos().distance(ps.getMovingBoxEndPositions().get(i)) < MAX_ERROR) {
                 count++;
             }
@@ -125,7 +126,7 @@ public class Tester {
         List<Box> movingObstacles = ps.getMovingObstacles();
         List<List<Box>> movingObstaclePath = ps.getMovingObstaclePath();
         for (int i = 0; i < movingObstacles.size(); i++) {
-            if (!movingObstacles.get(i).getPos().equals(movingObstaclePath.get(i).get(0).getPos())) {
+            if (!movingObstacles.get(i).getPos().equals(movingObstaclePath.get(0).get(i).getPos())) {
                 return false;
             }
         }
