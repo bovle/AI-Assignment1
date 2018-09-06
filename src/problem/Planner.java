@@ -191,6 +191,9 @@ public class Planner {
             for (int j = 0; j < ps.getMovingBoxes().size(); j++) {
                 obstacleString += " " + movingBoxPaths.get(i).get(j).getX() + " " + movingBoxPaths.get(i).get(j).getY();
             }
+            for (Box box : ps.getMovingObstacles()) {
+                obstacleString += " " + box.getRect().getCenterX() + " " + box.getRect().getCenterY();
+            }
 
             pw.println(x + " " + y + " " + angle + obstacleString);
         }

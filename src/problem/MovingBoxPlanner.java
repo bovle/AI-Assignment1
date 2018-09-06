@@ -139,8 +139,6 @@ public class MovingBoxPlanner {
     return this.ordering;
   }
 
-
-
   public List<Point2D> findBoxPathAux(double bw, double scalingFactor, int listIndex, int boxIndex) {
     double gw = bw / scalingFactor;
     double offset = (scalingFactor - 1) * gw / 2;
@@ -180,7 +178,7 @@ public class MovingBoxPlanner {
   }
 
   private Point2D closestPoint(List<Point2D> list, Point2D p) {
-    double shortestDist = 2; //maximal manhattan distance is 2
+    double shortestDist = 2; // maximal manhattan distance is 2
     double currentDist;
     Point2D closestPoint = null;
     for (Point2D elem : list) {
@@ -210,11 +208,11 @@ public class MovingBoxPlanner {
       currentCenter = getGridCenter(p, gw);
       if (GridType.FREE == isObstacle(currentCenter, listIndex, boxIndex)) {
         gridCenters.add(currentCenter);
-      }
-      else {
+      } else {
         gridCenters.add(null);
       }
     }
+
     // todo: choose center closest to goal?
     Point2D startInGrid = closestPoint(gridCenters, ref);
     // todo: sometimes the middlePoint is the same as one of the others
@@ -336,9 +334,10 @@ public class MovingBoxPlanner {
 
   private boolean isInList(List<Rectangle2D> list, Point2D p) {
     for (Rectangle2D r : list) {
-      if (r.contains(p.getX(), p.getY()))
-        ;
-      return true;
+      if (r.contains(p.getX(), p.getY())) {
+        return true;
+      }
+
     }
     return false;
   }

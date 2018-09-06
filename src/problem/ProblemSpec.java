@@ -108,6 +108,7 @@ public class ProblemSpec {
 	public int getNumMovingBoxes() {
 		return numMovingBoxes;
 	}
+
 	/**
 	 * Loads a problem from a problem text file.
 	 *

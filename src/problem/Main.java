@@ -15,7 +15,7 @@ public class Main {
     public static void main(String[] args) {
         ProblemSpec ps = new ProblemSpec();
         try {
-            ps.loadProblem("inputEasy.txt");
+            ps.loadProblem(args[0]);
             Planner planner = new Planner(ps);
             planner.plan();
 

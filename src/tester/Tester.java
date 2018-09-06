@@ -365,7 +365,8 @@ public class Tester {
 
         double angle = normaliseAngle(r.getOrientation());
         boolean horizontal;
-        if (angle >= Math.PI * 2 - angleError && angle <= Math.PI * 2 + angleError) {
+        if ((angle >= Math.PI * 2 && angle <= Math.PI * 2 + angleError)
+                || angle < Math.PI * 4 && angle >= Math.PI * 4 - angleError) {
             p1 = getPoint1(r);
             p2 = getPoint2(r);
             horizontal = true;

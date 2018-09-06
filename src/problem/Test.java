@@ -9,10 +9,10 @@ public class Test {
     public static void main(String[] args) {
         ProblemSpec ps = new ProblemSpec();
         try {
-            ps.loadProblem("input2.txt");
+            ps.loadProblem("input3.txt");
             ps.loadSolution("output.txt");
             List<Rectangle2D> obstacles = new ArrayList<>();
-            for (Box box : ps.getMovingBoxes()) {
+            for (Box box : ps.getMovingBoxPath().get(2304)) {
                 obstacles.add(box.getRect());
             }
             for (Box box : ps.getMovingObstacles()) {
@@ -25,7 +25,7 @@ public class Test {
             rrt.obstacles = obstacles;
             rrt.robotWidth = ps.getRobotWidth();
             rrt.angleStepSize = Math.asin(0.0005 / (ps.getRobotWidth() / 2)) * 2;
-            RobotConfig config = ps.getRobotPath().get(798);
+            RobotConfig config = ps.getRobotPath().get(2304);
             System.out.println(rrt.collisionFree(config));
             System.out.println(
                     rrt.collisionFreeLine(rrt.directPath(ps.getRobotPath().get(780), ps.getRobotPath().get(799))));

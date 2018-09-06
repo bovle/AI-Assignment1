@@ -177,7 +177,7 @@ public class RRT {
                 config.getX2(robotWidth), config.getY2(robotWidth));
 
         for (Rectangle2D rect : obstacles) {
-            double dist = lineToRectDist(configLine, rect);
+            double dist = lineToRectDist(configLine, grow(rect, -0.0001));
             if (dist < shortestDist)
                 shortestDist = dist;
         }
@@ -217,7 +217,7 @@ public class RRT {
             if (dist < shortestDist)
                 shortestDist = dist;
         }
-        return shortestDist - 0.0001;
+        return shortestDist;
     }
 
     public List<RobotConfig> directPath(RobotConfig startConfig, RobotConfig goalConfig) {
@@ -255,12 +255,11 @@ public class RRT {
             currentRotationPart += rotationPart;
             path.add(currentConfig);
         }
-        if (!Util.equalPositions(currentConfig.getPos(), goalConfig.getPos())) {
+        if (!currentConfig.getPos().equals(goalConfig.getPos())) {
             currentConfig = new RobotConfig(goalConfig.getPos(), currentConfig.getOrientation());
             path.add(currentConfig);
         }
-        double angleError = Math.asin((0.0001 / 2) / (robotWidth / 2)) * 2;
-        if (Math.abs(currentConfig.getOrientation() - goalConfig.getOrientation()) > angleError) {
+        if (!(currentConfig.getOrientation() == goalConfig.getOrientation())) {
             currentConfig = new RobotConfig(currentConfig.getPos(), goalConfig.getOrientation());
             path.add(currentConfig);
         }
