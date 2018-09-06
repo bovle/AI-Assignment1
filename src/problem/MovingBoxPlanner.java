@@ -139,6 +139,8 @@ public class MovingBoxPlanner {
     return this.ordering;
   }
 
+
+
   public List<Point2D> findBoxPathAux(double bw, double scalingFactor, int listIndex, int boxIndex) {
     double gw = bw / scalingFactor;
     double offset = (scalingFactor - 1) * gw / 2;
@@ -146,16 +148,16 @@ public class MovingBoxPlanner {
     List<Point2D> startPath = new ArrayList<>();
     List<Point2D> endPath = new ArrayList<>();
 
-    double oldStartX = problemSpec.getMovingBoxes().get(boxIndex).getRect().getCenterX();
-    double oldStartY = problemSpec.getMovingBoxes().get(boxIndex).getRect().getCenterY();
-    double oldGoalX = problemSpec.getMovingBoxEndPositions().get(boxIndex).getX() + bw / 2;
-    double oldGoalY = problemSpec.getMovingBoxEndPositions().get(boxIndex).getY() + bw / 2;
+    double originalStartX = problemSpec.getMovingBoxes().get(boxIndex).getRect().getCenterX();
+    double originalStartY = problemSpec.getMovingBoxes().get(boxIndex).getRect().getCenterY();
+    double originalGoalX = problemSpec.getMovingBoxEndPositions().get(boxIndex).getX() + bw / 2;
+    double originalGoalY = problemSpec.getMovingBoxEndPositions().get(boxIndex).getY() + bw / 2;
 
-    Point2D start = new Point2D.Double(oldStartX - offset, oldStartY - offset);
-    Point2D goal = new Point2D.Double(oldGoalX - offset, oldGoalY - offset);
+    Point2D shrinkedStart = new Point2D.Double(originalStartX - offset, originalStartY - offset);
+    Point2D shrinkedGoal = new Point2D.Double(originalGoalX - offset, originalGoalY - offset);
 
-    startPath = startToGridCenter(start, gw, listIndex, boxIndex);
-    endPath = startToGridCenter(goal, gw, listIndex, boxIndex);
+    startPath = pointToGridCenter(shrinkedStart, shrinkedGoal, gw, listIndex, boxIndex);
+    endPath = pointToGridCenter(shrinkedGoal, shrinkedStart, gw, listIndex, boxIndex);
 
     Collections.reverse(endPath);
 
@@ -177,10 +179,26 @@ public class MovingBoxPlanner {
     return fullPath;
   }
 
+  private Point2D closestPoint(List<Point2D> list, Point2D p) {
+    double shortestDist = 2; //maximal manhattan distance is 2
+    double currentDist;
+    Point2D closestPoint = null;
+    for (Point2D elem : list) {
+      if (elem != null) {
+        currentDist = Util.manhattanDist(elem, p);
+        if (currentDist < shortestDist) {
+          shortestDist = currentDist;
+          closestPoint = elem;
+        }
+      }
+    }
+    return closestPoint;
+  }
+
   // w should be the width of the grid
-  private List<Point2D> startToGridCenter(Point2D start, double gw, int listIndex, int boxIndex) {
-    double x = start.getX();
-    double y = start.getY();
+  private List<Point2D> pointToGridCenter(Point2D point, Point2D ref, double gw, int listIndex, int boxIndex) {
+    double x = point.getX();
+    double y = point.getY();
     List<Point2D> corners = new ArrayList<>();
     corners.add(new Point2D.Double(x - gw / 2, y + gw / 2)); // topLeft
     corners.add(new Point2D.Double(x + gw / 2, y + gw / 2)); // topRight
@@ -193,14 +211,17 @@ public class MovingBoxPlanner {
       if (GridType.FREE == isObstacle(currentCenter, listIndex, boxIndex)) {
         gridCenters.add(currentCenter);
       }
+      else {
+        gridCenters.add(null);
+      }
     }
     // todo: choose center closest to goal?
-    Point2D startInGrid = gridCenters.get(0);
+    Point2D startInGrid = closestPoint(gridCenters, ref);
     // todo: sometimes the middlePoint is the same as one of the others
     Point2D middlePoint = new Point2D.Double(x, startInGrid.getY());
     List<Point2D> path = new ArrayList<>();
-    path.add(start);
-    if (!Util.equalPositions(start, middlePoint)) {
+    path.add(point);
+    if (!Util.equalPositions(point, middlePoint)) {
       path.add(middlePoint);
     }
     return path;

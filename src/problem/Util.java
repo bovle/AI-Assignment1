@@ -18,9 +18,8 @@ public class Util {
     return (Math.abs(diff) < MAX_ERROR);
   }
 
-  public static GridType findGridType(Point2D p) {
-    // todo1: return STAT_OBS for walls/staticObstacles
-    return GridType.FREE;
+  public static double manhattanDist(Point2D a, Point2D b) {
+    return Math.abs(a.getX() - b.getX()) + Math.abs(a.getY() - b.getY());
   }
 
   public static Point2D translateOneStep(Point2D position, double angle) {

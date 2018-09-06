@@ -71,7 +71,7 @@ public class Astar {
   }
 
   private double calculateHcost(Point2D start, Point2D goal) {
-    return Math.abs(start.getX() - goal.getX()) + Math.abs(start.getY() - goal.getY());
+    return Util.manhattanDist(start, goal);
   }
 
   /**
