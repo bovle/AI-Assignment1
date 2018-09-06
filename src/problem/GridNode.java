@@ -17,7 +17,7 @@ public class GridNode implements Comparable<GridNode> {
   /**
    * Creates a root gridNode, the starting node
    */
-  public GridNode(double hCost, Point2D pos, double gridWidth) {
+  public GridNode(MovingBoxPlanner planner, double hCost, Point2D pos, double gridWidth, int listIndex, int boxIndex) {
     this.parent = null;
     this.type = GridType.FREE; /* assuming we don't start on a obstacle */
     this.gCost = 0;
@@ -26,13 +26,13 @@ public class GridNode implements Comparable<GridNode> {
     this.depth = 0;
     this.pos = pos;
     this.neighbours = new Neighbour[4];
-    this.setNeighbours(gridWidth);
+    this.setNeighbours(planner, gridWidth, listIndex, boxIndex);
   }
 
   /**
    * Creates a non-root gridNode,
    */
-  public GridNode(GridNode parent, GridType type, double hCost, Point2D pos, double gridWidth) {
+  public GridNode(MovingBoxPlanner planner, GridNode parent, GridType type, double hCost, Point2D pos, double gridWidth, int listIndex, int boxIndex) {
     this.parent = parent;
     /* gCost: assume the cost increases with the width of the "gridcell" for every step you take.
      * todo: Room for improvement: extra cost if making a turn or if it's a moving obstacle
@@ -44,11 +44,11 @@ public class GridNode implements Comparable<GridNode> {
     this.depth = 0;
     this.pos = pos;
     this.neighbours = new Neighbour[4];
-    this.setNeighbours(gridWidth);
+    this.setNeighbours(planner, gridWidth, listIndex, boxIndex);
   }
 
 
-  private void setNeighbours(double gridWidth) {
+  private void setNeighbours(MovingBoxPlanner planner, double gridWidth, int listIndex, int boxIndex) {
     double currentX = this.pos.getX();
     double currentY = this.pos.getY();
     Point2D[] points = {
@@ -59,7 +59,7 @@ public class GridNode implements Comparable<GridNode> {
     };
 
     for (int i = 0; i < 4; i++) {
-      this.neighbours[i] = new Neighbour(points[i], Util.findGridType(points[i]));
+      this.neighbours[i] = new Neighbour(points[i], (planner.isObstacle(points[i], listIndex, boxIndex)));
     }
   }
 
