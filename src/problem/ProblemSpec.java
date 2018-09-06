@@ -17,10 +17,10 @@ import java.util.Scanner;
  * that is, it provides a structured representation of the contents of a problem
  * text file and associated solution text file, as described in the assignment
  * specifications.
- * 
+ *
  * This class doesn't do any validity checking - see the code in tester.Tester
  * for this.
- * 
+ *
  * @author Sergiy Dudnikov
  */
 public class ProblemSpec {
@@ -105,9 +105,12 @@ public class ProblemSpec {
 		return solutionLoaded;
 	}
 
+	public int getNumMovingBoxes() {
+		return numMovingBoxes;
+	}
 	/**
 	 * Loads a problem from a problem text file.
-	 * 
+	 *
 	 * @param filename the path of the text file to load.
 	 * @throws IOException if the text file doesn't exist or doesn't meet the
 	 *                     assignment specifications.
@@ -195,7 +198,7 @@ public class ProblemSpec {
 
 	/**
 	 * Loads a solution from a solution text file.
-	 * 
+	 *
 	 * @param filename the path of the text file to load.
 	 * @throws IOException if the text file doesn't exist or doesn't meet the
 	 *                     assignment specifications.

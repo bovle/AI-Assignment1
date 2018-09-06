@@ -18,10 +18,10 @@ public class Astar {
     this.evaluated = new ArrayList<GridNode>();
   }
 
-  public List<GridNode> search(Point2D start, Point2D goal, double gridWidth) {
+  public List<GridNode> search(MovingBoxPlanner planner, Point2D start, Point2D goal, double gridWidth, int listIndex, int boxIndex) {
     // hCost from start to goal: manhattan distance
     double hCost = calculateHcost(start, goal);
-    open.add(new GridNode(hCost, start, gridWidth));
+    open.add(new GridNode(planner, hCost, start, gridWidth, listIndex, boxIndex));
 
     while(open.size() > 0) {
       GridNode currentNode = (GridNode)open.poll();
@@ -43,7 +43,7 @@ public class Astar {
 
       // For each neighbour...
       for(Neighbour n : currentNode.neighbours) {
-        if(!(n.type == GridType.STAT_OBS || n.isInList(this.evaluated))) {
+        if(!(n.type != GridType.FREE || n.isInList(this.evaluated))) { //n.type == GridType.STAT_OBS
           GridNode neighbourInOpen = n.isInPrioQueue(this.open);
           // todo: improve the calculation of cost
           double newPathCost = currentNode.gCost + gridWidth;
@@ -56,7 +56,8 @@ public class Astar {
             }
             else {
               double newHcost = calculateHcost(n.pos, goal);
-              GridNode newNeighbour = new GridNode(currentNode, GridType.FREE, newHcost, n.pos, gridWidth);
+              // todo: is a new neighbour always FREE?
+              GridNode newNeighbour = new GridNode(planner, currentNode, n.type, newHcost, n.pos, gridWidth, listIndex, boxIndex);
               this.open.add(newNeighbour);
             }
           }
