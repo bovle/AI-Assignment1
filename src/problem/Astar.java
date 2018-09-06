@@ -17,7 +17,8 @@ public class Astar {
     this.evaluated = new ArrayList<GridNode>();
   }
 
-  public List<GridNode> search(MovingBoxPlanner planner, Point2D start, Point2D goal, double gridWidth, int listIndex, int boxIndex) {
+  public List<GridNode> search(MovingBoxPlanner planner, Point2D start, Point2D goal, double gridWidth, int listIndex,
+      int boxIndex) {
     // hCost from start to goal: manhattan distance
     double hCost = calculateHcost(start, goal);
     open.add(new GridNode(planner, hCost, start, gridWidth, listIndex, boxIndex));
@@ -32,7 +33,7 @@ public class Astar {
           pathToGoal.add(currentNode);
           currentNode = currentNode.parent;
         }
-        pathToGoal.add(currentNode);
+        // pathToGoal.add(currentNode);
         Collections.reverse(pathToGoal);
 
         // reset for next search
@@ -42,8 +43,8 @@ public class Astar {
       }
 
       // For each neighbour...
-      for(Neighbour n : currentNode.neighbours) {
-        if(!(n.type != GridType.FREE || n.isInList(this.evaluated))) { //n.type == GridType.STAT_OBS
+      for (Neighbour n : currentNode.neighbours) {
+        if (!(n.type != GridType.FREE || n.isInList(this.evaluated))) { // n.type == GridType.STAT_OBS
           GridNode neighbourInOpen = n.isInPrioQueue(this.open);
           // todo: improve the calculation of cost
           double newPathCost = currentNode.gCost + gridWidth;
@@ -56,7 +57,8 @@ public class Astar {
             } else {
               double newHcost = calculateHcost(n.pos, goal);
               // todo: is a new neighbour always FREE?
-              GridNode newNeighbour = new GridNode(planner, currentNode, n.type, newHcost, n.pos, gridWidth, listIndex, boxIndex);
+              GridNode newNeighbour = new GridNode(planner, currentNode, n.type, newHcost, n.pos, gridWidth, listIndex,
+                  boxIndex);
               this.open.add(newNeighbour);
             }
           }

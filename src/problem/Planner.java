@@ -13,13 +13,14 @@ public class Planner {
 
     ProblemSpec ps;
     RRT rrt;
+    MovingBoxPlanner boxPlanner;
     List<RobotConfig> robotPath;
     List<List<Point2D>> movingBoxPaths; // row = stepnr | column = boxIndex
 
     public Planner(ProblemSpec ps) {
         this.ps = ps;
         rrt = new RRT();
-
+        boxPlanner = new MovingBoxPlanner(ps);
     }
 
     public void plan() throws IOException {
@@ -38,67 +39,38 @@ public class Planner {
             obstacles.add(box.getRect());
         }
 
-        List<List<Point2D>> boxPaths = dummy1();
-        List<Integer> indexList = dummy3();
+        List<List<Point2D>> boxPaths = boxPlanner.findAllBoxPaths();
+        List<Integer> indexList = boxPlanner.getIndexList();
+        RobotConfig currentConfig = ps.getInitialRobotConfig();
         for (int i = 0; i < boxPaths.size(); i++) {
             List<Point2D> path = boxPaths.get(i);
             int boxIndex = indexList.get(i);
 
             obstacles.remove(Util.pointToRect(path.get(0), ps.getRobotWidth()));
 
-            Point2D failPoint = calcPaths(boxIndex, path, obstacles);
+            Point2D failPoint = calcPaths(currentConfig, boxIndex, path, obstacles);
             while (failPoint != null) {
                 System.out.println("failed at: " + failPoint);
-                List<Point2D> newPath = dummy2(failPoint, boxIndex);
+                List<Point2D> newPath = boxPlanner.findNewPath(failPoint, boxIndex);
                 if (newPath == null) {
                     System.err.println("no solution");
                     return;
                 }
-                failPoint = calcPaths(boxIndex, newPath, obstacles);
+                failPoint = calcPaths(currentConfig, boxIndex, newPath, obstacles);
             }
-            obstacles.add(Util.pointToRect(path.get(path.size()), ps.getRobotWidth()));
+            obstacles.add(Util.pointToRect(path.get(path.size() - 1), ps.getRobotWidth()));
+            currentConfig = robotPath.get(robotPath.size() - 1);
         }
-
-        Point2D start = ps.getMovingBoxes().get(0).getPos();
-        start.setLocation(start.getX() + (ps.getRobotWidth() / 2), start.getY() + (ps.getRobotWidth() / 2));
-        Point2D goal = ps.getMovingBoxEndPositions().get(0);
-        goal.setLocation(goal.getX() + (ps.getRobotWidth() / 2), goal.getY() + (ps.getRobotWidth() / 2));
-
-        Astar agent = new Astar();
-        double gridWidth = ps.getRobotWidth();
-        List<Point2D> path = ((List<GridNode>) agent.search(start, goal, gridWidth)).stream().map(x -> x.pos)
-                .collect(Collectors.toList());
-        // for (int i = 0; i < path.size(); i++) {
-        // System.out.println(path.get(i));
-        // }
-        obstacles.remove(Util.pointToRect(start, ps.getRobotWidth()));
-        Point2D failPoint = calcPaths(0, path, obstacles);
-        if (failPoint != null) {
-
-            System.out.println("failed at: " + failPoint);
-        }
-        obstacles.add(Util.pointToRect(goal, ps.getRobotWidth()));
 
         movingBoxPaths.remove(0);
 
         outputPath();
     }
 
-    private List<List<Point2D>> dummy1() {
-        return null;
-    }
-
-    private List<Point2D> dummy2(Point2D point, int boxIndex) {
-        return null;
-    }
-
-    private List<Integer> dummy3() {
-        return null;
-    }
-
-    private Point2D calcPaths(int boxIndex, List<Point2D> boxPath, List<Rectangle2D> staticObstacles) {
+    private Point2D calcPaths(RobotConfig initConfig, int boxIndex, List<Point2D> boxPath,
+            List<Rectangle2D> staticObstacles) {
         List<DirectionalLine> lines = splitByDirection(boxPath);
-        RobotConfig currentConfig = ps.getInitialRobotConfig();
+        RobotConfig currentConfig = initConfig;
         double robotWidth = ps.getRobotWidth();
         List<RobotConfig> tempRobotPath = new ArrayList<>();
         List<List<Point2D>> tempMovingBoxPaths = new ArrayList<>();

@@ -1,4 +1,5 @@
 package problem;
+
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -9,7 +10,7 @@ import java.lang.*;
 
 public class MovingBoxPlanner {
   private ProblemSpec problemSpec;
-  //private List<Point2D> currentStaticObstacles;
+  // private List<Point2D> currentStaticObstacles;
   private List<List<Rectangle2D>> staticObstacles;
   private List<List<Rectangle2D>> movingObstacles;
   private List<List<Rectangle2D>> boxesStart;
@@ -25,7 +26,7 @@ public class MovingBoxPlanner {
     // static obstacles
     List<Rectangle2D> statObsOriginal = new ArrayList<>();
     for (StaticObstacle box : ps.getStaticObstacles()) {
-        statObsOriginal.add(box.getRect());
+      statObsOriginal.add(box.getRect());
     }
     this.staticObstacles = new ArrayList<>();
     this.staticObstacles.add(statObsOriginal);
@@ -33,7 +34,7 @@ public class MovingBoxPlanner {
     // moving obstacles
     List<Rectangle2D> movObsOriginal = new ArrayList<>();
     for (Box box : ps.getMovingObstacles()) {
-        movObsOriginal.add(box.getRect());
+      movObsOriginal.add(box.getRect());
     }
     this.movingObstacles = new ArrayList<>();
     this.movingObstacles.add(movObsOriginal);
@@ -44,7 +45,7 @@ public class MovingBoxPlanner {
     // moving boxes starting rectangels
     List<Rectangle2D> boxStartOriginal = new ArrayList<>();
     for (Box box : ps.getMovingBoxes()) {
-        boxStartOriginal.add(box.getRect());
+      boxStartOriginal.add(box.getRect());
     }
     this.boxesStart = new ArrayList<>();
     this.boxesStart.add(boxStartOriginal);
@@ -62,13 +63,13 @@ public class MovingBoxPlanner {
 
     // initilizing atGoal to 0
     this.atGoal = new ArrayList<>();
-    for (int i=0; i < numMovingBoxes; i++) {
+    for (int i = 0; i < numMovingBoxes; i++) {
       atGoal.add(0);
     }
 
     // initializing all listIndexes to 1
     this.listIndexes = new ArrayList<>();
-    for (int i=0; i < numMovingBoxes; i++) {
+    for (int i = 0; i < numMovingBoxes; i++) {
       listIndexes.add(1);
     }
 
@@ -87,7 +88,6 @@ public class MovingBoxPlanner {
     return newPath;
   }
 
-
   public List<List<Point2D>> findAllBoxPaths() {
     List<List<Point2D>> allPaths = new ArrayList<>();
 
@@ -100,9 +100,9 @@ public class MovingBoxPlanner {
   }
 
   private void normalize(List<Point2D> path, double offset) {
-      for (Point2D p : path) {
-        p.setLocation(p.getX()-offset, p.getY()-offset);
-      }
+    for (Point2D p : path) {
+      p.setLocation(p.getX() - offset, p.getY() - offset);
+    }
   }
 
   private List<Point2D> findBoxPath(int listIndex, int boxIndex) {
@@ -111,23 +111,22 @@ public class MovingBoxPlanner {
     double scalingFactor = 1;
     List<Point2D> path = new ArrayList<>();
 
-    while(!pathFound && listIndex < 5) { // todo: is 5 a reasonable number?
+    while (!pathFound && listIndex < 5) { // todo: is 5 a reasonable number?
       if (listIndex > this.numExtensions) {
         extendObstacles(bw, scalingFactor);
       }
       path = findBoxPathAux(bw, scalingFactor, listIndex, boxIndex);
       if (path != null) {
         pathFound = true;
-        double offset = (scalingFactor-1)*bw/(scalingFactor*2);
+        double offset = (scalingFactor - 1) * bw / (scalingFactor * 2);
         normalize(path, offset);
         atGoal.set(boxIndex, 1);
         listIndexes.set(boxIndex, listIndex);
-        //return path;
-      }
-      else {
+        // return path;
+      } else {
         scalingFactor *= 2;
         listIndex++;
-        System.out.println("New gridsize: " + bw/scalingFactor);
+        System.out.println("New gridsize: " + bw / scalingFactor);
       }
     }
     if (!pathFound) {
@@ -137,23 +136,23 @@ public class MovingBoxPlanner {
   }
 
   public List<Integer> getIndexList() {
-      return this.ordering;
+    return this.ordering;
   }
 
   public List<Point2D> findBoxPathAux(double bw, double scalingFactor, int listIndex, int boxIndex) {
-    double gw = bw/scalingFactor;
-    double offset = (scalingFactor-1)*gw/2;
+    double gw = bw / scalingFactor;
+    double offset = (scalingFactor - 1) * gw / 2;
     List<Point2D> fullPath = new ArrayList<>();
     List<Point2D> startPath = new ArrayList<>();
     List<Point2D> endPath = new ArrayList<>();
 
     double oldStartX = problemSpec.getMovingBoxes().get(boxIndex).getRect().getCenterX();
     double oldStartY = problemSpec.getMovingBoxes().get(boxIndex).getRect().getCenterY();
-    double oldGoalX = problemSpec.getMovingBoxEndPositions().get(boxIndex).getX() + bw/2;
-    double oldGoalY = problemSpec.getMovingBoxEndPositions().get(boxIndex).getY() + bw/2;
+    double oldGoalX = problemSpec.getMovingBoxEndPositions().get(boxIndex).getX() + bw / 2;
+    double oldGoalY = problemSpec.getMovingBoxEndPositions().get(boxIndex).getY() + bw / 2;
 
-    Point2D start = new Point2D.Double(oldStartX-offset, oldStartY-offset);
-    Point2D goal = new Point2D.Double(oldGoalY-offset, oldGoalY-offset);
+    Point2D start = new Point2D.Double(oldStartX - offset, oldStartY - offset);
+    Point2D goal = new Point2D.Double(oldGoalX - offset, oldGoalY - offset);
 
     startPath = startToGridCenter(start, gw, listIndex, boxIndex);
     endPath = startToGridCenter(goal, gw, listIndex, boxIndex);
@@ -166,10 +165,11 @@ public class MovingBoxPlanner {
     fullPath.addAll(startPath);
 
     Astar agent = new Astar();
-    List<GridNode> path = (List<GridNode>)agent.search(this, centeredStart, centeredGoal, gw, listIndex, boxIndex);
-    if (path == null) return null;
+    List<GridNode> path = (List<GridNode>) agent.search(this, centeredStart, centeredGoal, gw, listIndex, boxIndex);
+    if (path == null)
+      return null;
 
-    for(GridNode g : path) {
+    for (GridNode g : path) {
       fullPath.add(g.pos);
     }
 
@@ -177,18 +177,15 @@ public class MovingBoxPlanner {
     return fullPath;
   }
 
-
-
-
   // w should be the width of the grid
   private List<Point2D> startToGridCenter(Point2D start, double gw, int listIndex, int boxIndex) {
     double x = start.getX();
     double y = start.getY();
     List<Point2D> corners = new ArrayList<>();
-    corners.add(new Point2D.Double(x-gw/2, y+gw/2)); //topLeft
-    corners.add(new Point2D.Double(x+gw/2, y+gw/2)); //topRight
-    corners.add(new Point2D.Double(x-gw/2, y-gw/2)); //bottomLeft
-    corners.add(new Point2D.Double(x+gw/2, y-gw/2)); //bottomRight
+    corners.add(new Point2D.Double(x - gw / 2, y + gw / 2)); // topLeft
+    corners.add(new Point2D.Double(x + gw / 2, y + gw / 2)); // topRight
+    corners.add(new Point2D.Double(x - gw / 2, y - gw / 2)); // bottomLeft
+    corners.add(new Point2D.Double(x + gw / 2, y - gw / 2)); // bottomRight
     List<Point2D> gridCenters = new ArrayList<>();
     Point2D currentCenter;
     for (Point2D p : corners) {
@@ -203,40 +200,34 @@ public class MovingBoxPlanner {
     Point2D middlePoint = new Point2D.Double(x, startInGrid.getY());
     List<Point2D> path = new ArrayList<>();
     path.add(start);
-    if(!Util.equalPositions(start, middlePoint)) {
-        path.add(middlePoint);
+    if (!Util.equalPositions(start, middlePoint)) {
+      path.add(middlePoint);
     }
     return path;
   }
 
-
-
   private Point2D getGridCenter(Point2D p, double gw) {
     double xIndex = findGridIndex(p.getX(), gw);
     double yIndex = findGridIndex(p.getY(), gw);
-    double x = gw/2 + xIndex*gw;
-    double y = gw/2 + yIndex*gw;
+    double x = gw / 2 + xIndex * gw;
+    double y = gw / 2 + yIndex * gw;
     return new Point2D.Double(x, y);
   }
-
-
-
-
 
   private void setOrder() {
     this.ordering = new ArrayList<>();
     // simple ordering now: just as indexed in input file
-    for (int i=0; i < numMovingBoxes; i++) {
+    for (int i = 0; i < numMovingBoxes; i++) {
       this.ordering.add(i);
     }
   }
 
-  /* Extend obstacles to fit the grid
-   * w: moving box width
+  /*
+   * Extend obstacles to fit the grid w: moving box width
    */
   private void extendObstacles(double bw, double scalingFactor) {
-    double margin = (scalingFactor-1)/scalingFactor * bw;
-    double gw = bw/scalingFactor;
+    double margin = (scalingFactor - 1) / scalingFactor * bw;
+    double gw = bw / scalingFactor;
     staticObstacles.add(fittedRects(staticObstacles.get(0), gw, margin));
     movingObstacles.add(fittedRects(movingObstacles.get(0), gw, margin));
     boxesStart.add(fittedRects(boxesStart.get(0), gw, margin));
@@ -255,37 +246,37 @@ public class MovingBoxPlanner {
 
   private Rectangle2D fitToGrid(Rectangle2D original, double gw, double margin) {
     // first: resize eveything
-    double newX = original.getX() - margin; //todo: should it also be -w/2?
+    double newX = original.getX() - margin; // todo: should it also be -w/2?
     double newY = original.getY() - margin;
     double newWidth = original.getWidth() + margin;
     double newHeigth = original.getHeight() + margin;
 
     // second: make it fit to current grid
     double leftIndex = findGridIndex(newX, gw);
-    double rightIndex = findGridIndex(newX+newWidth, gw) + 1;
+    double rightIndex = findGridIndex(newX + newWidth, gw) + 1;
     double bottomIndex = findGridIndex(newY, gw);
-    double topIndex = findGridIndex(newY+newHeigth, gw) + 1;
-    double fittedWidth = (rightIndex-leftIndex) * gw;
-    double fittedHeight = (topIndex-bottomIndex) * gw;
-    Rectangle2D fittedRect = new Rectangle2D.Double(leftIndex*gw, bottomIndex*gw, fittedWidth, fittedHeight);
+    double topIndex = findGridIndex(newY + newHeigth, gw) + 1;
+    double fittedWidth = (rightIndex - leftIndex) * gw;
+    double fittedHeight = (topIndex - bottomIndex) * gw;
+    Rectangle2D fittedRect = new Rectangle2D.Double(leftIndex * gw, bottomIndex * gw, fittedWidth, fittedHeight);
     return fittedRect;
   }
 
   private double findGridIndex(double pos, double w) {
-    return Math.floor(pos/w);
+    return Math.floor(pos / w);
   }
 
   private boolean pointOutside(Point2D p, double margin) {
     double x = p.getX();
     double y = p.getY();
-    return (x < 0 || x > 1-margin || y < 0 || y > 1-margin);
+    return (x < 0 || x > 1 - margin || y < 0 || y > 1 - margin);
   }
 
   // index i is to know which inner lists to check
   public GridType isObstacle(Point2D p, int listIndex, int boxIndex) {
     double bw = problemSpec.getRobotWidth();
-    double scalingFactor = 2^(listIndex-1);
-    double margin = (scalingFactor-1)/scalingFactor * bw;
+    double scalingFactor = 2 ^ (listIndex - 1);
+    double margin = (scalingFactor - 1) / scalingFactor * bw;
 
     if (pointOutside(p, margin)) {
       return GridType.STAT_OBS;
@@ -310,8 +301,7 @@ public class MovingBoxPlanner {
       if (i != boxIndex) {
         if (atGoal.get(i) == 1) {
           currentRect = goals.get(i);
-        }
-        else {
+        } else {
           currentRect = starts.get(i);
         }
         if (currentRect.contains(p.getX(), p.getY())) {
@@ -325,13 +315,11 @@ public class MovingBoxPlanner {
 
   private boolean isInList(List<Rectangle2D> list, Point2D p) {
     for (Rectangle2D r : list) {
-        if (r.contains(p.getX(), p.getY()));
-        return true;
+      if (r.contains(p.getX(), p.getY()))
+        ;
+      return true;
     }
     return false;
   }
-
-
-
 
 }
