@@ -83,9 +83,10 @@ public class MovingBoxPlanner {
     // try find a new path with same gw (avoiding the point)
     // find a new path for the box
     // TODO
-    int listIndex = listIndexes.get(boxIndex);
-    List<Point2D> newPath = findBoxPath(listIndex, boxIndex);
-    return newPath;
+    // int listIndex = listIndexes.get(boxIndex);
+    // List<Point2D> newPath = findBoxPath(listIndex, boxIndex);
+    // return newPath;
+    return null;
   }
 
   public List<List<Point2D>> findAllBoxPaths() {
@@ -106,12 +107,14 @@ public class MovingBoxPlanner {
   }
 
   private List<Point2D> findBoxPath(int listIndex, int boxIndex) {
+    System.out.println("finding path for box: " + boxIndex);
     double bw = problemSpec.getRobotWidth();
     boolean pathFound = false;
     double scalingFactor = 1;
     List<Point2D> path = new ArrayList<>();
 
     while (!pathFound && listIndex < 5) { // todo: is 5 a reasonable number?
+
       if (listIndex > this.numExtensions) {
         extendObstacles(bw, scalingFactor);
       }
