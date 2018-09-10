@@ -28,7 +28,7 @@
             "classPaths": [
                 "/Users/frederiklund/Documents/School/AI/AI-Assignment1/build/classes"
             ],
-            "args": "input3.txt"
+            "args": "inputfail1.txt"
         },
         {
             "type": "java",
@@ -41,7 +41,7 @@
             "classPaths": [
                 "/Users/frederiklund/Documents/School/AI/AI-Assignment1/build/classes"
             ],
-            "args": "input3.txt output.txt"
+            "args": "inputfail1.txt output.txt"
         },
         {
             "type": "java",

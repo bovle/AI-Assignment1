@@ -46,7 +46,7 @@ public class Planner {
             List<Point2D> path = boxPaths.get(i);
             int boxIndex = indexList.get(i);
 
-            obstacles.remove(Util.pointToRect(path.get(0), ps.getRobotWidth()));
+            obstacles.remove(boxIndex);
 
             Point2D failPoint = calcPaths(currentConfig, boxIndex, path, obstacles);
             while (failPoint != null) {
@@ -58,7 +58,7 @@ public class Planner {
                 }
                 failPoint = calcPaths(currentConfig, boxIndex, newPath, obstacles);
             }
-            obstacles.add(Util.pointToRect(path.get(path.size() - 1), ps.getRobotWidth()));
+            obstacles.add(boxIndex, Util.pointToRect(path.get(path.size() - 1), ps.getRobotWidth()));
             currentConfig = robotPath.get(robotPath.size() - 1);
         }
 

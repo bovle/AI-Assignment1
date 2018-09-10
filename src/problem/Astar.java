@@ -64,6 +64,7 @@ public class Astar {
           }
         }
       }
+      this.evaluated.add(currentNode);
     }
     // no path found
     System.out.println("No path found");

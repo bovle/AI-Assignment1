@@ -135,12 +135,14 @@ public class MovingBoxPlanner {
   }
 
   private List<Point2D> findBoxPath(int listIndex, int boxIndex) {
+    System.out.println("finding path for box: " + boxIndex);
     double bw = problemSpec.getRobotWidth();
     boolean pathFound = false;
     double scalingFactor = Math.pow(2, listIndex-1);
     List<Point2D> path = new ArrayList<>();
 
     while (!pathFound && listIndex < 5) { // todo: is 5 a reasonable number?
+
       if (listIndex > this.numExtensions) {
         extendObstacles(bw, scalingFactor);
       }
