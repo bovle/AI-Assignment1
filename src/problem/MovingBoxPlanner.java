@@ -83,6 +83,7 @@ public class MovingBoxPlanner {
   }
 
   public List<Point2D> findNewPath(Point2D p, int boxIndex) {
+    System.out.println("Find new path for box #" + boxIndex);
     int listIndex = listIndexes[boxIndex];
     // temporaryObstacles should be empty before this
     double bw = problemSpec.getRobotWidth();
@@ -135,7 +136,7 @@ public class MovingBoxPlanner {
   }
 
   private List<Point2D> findBoxPath(int listIndex, int boxIndex) {
-    System.out.println("finding path for box: " + boxIndex);
+    System.out.println("*** Finding path for box: " + boxIndex + " ***");
     double bw = problemSpec.getRobotWidth();
     boolean pathFound = false;
     double scalingFactor = Math.pow(2, listIndex-1);
@@ -337,7 +338,7 @@ public class MovingBoxPlanner {
   // index i is to know which inner lists to check
   public GridType isObstacle(Point2D p, int listIndex, int boxIndex) {
     double bw = problemSpec.getRobotWidth();
-    double scalingFactor = 2 ^ (listIndex - 1);
+    double scalingFactor = Math.pow(2, listIndex-1);
     double margin = (scalingFactor - 1) / scalingFactor * bw;
 
     if (pointOutside(p, margin)) {
