@@ -1,5 +1,7 @@
 package problem;
 
+import static tester.Tester.*; // to use MAX_ERROR
+
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -27,7 +29,7 @@ public class MovingBoxPlanner {
     // static obstacles
     List<Rectangle2D> statObsOriginal = new ArrayList<>();
     for (StaticObstacle box : ps.getStaticObstacles()) {
-      statObsOriginal.add(box.getRect());
+      statObsOriginal.add(Util.grow(box.getRect(), MAX_ERROR));
     }
     this.staticObstacles = new ArrayList<>();
     this.staticObstacles.add(statObsOriginal);
@@ -35,7 +37,7 @@ public class MovingBoxPlanner {
     // moving obstacles
     List<Rectangle2D> movObsOriginal = new ArrayList<>();
     for (Box box : ps.getMovingObstacles()) {
-      movObsOriginal.add(box.getRect());
+      movObsOriginal.add(Util.grow(box.getRect(), MAX_ERROR));
     }
     this.movingObstacles = new ArrayList<>();
     this.movingObstacles.add(movObsOriginal);
@@ -46,7 +48,7 @@ public class MovingBoxPlanner {
     // moving boxes starting Rectangles
     List<Rectangle2D> boxStartOriginal = new ArrayList<>();
     for (Box box : ps.getMovingBoxes()) {
-      boxStartOriginal.add(box.getRect());
+      boxStartOriginal.add(Util.grow(box.getRect(), MAX_ERROR));
     }
     this.boxesStart = new ArrayList<>();
     this.boxesStart.add(boxStartOriginal);
@@ -57,7 +59,8 @@ public class MovingBoxPlanner {
     double w = ps.getRobotWidth();
     for (Point2D endCenter : ps.getMovingBoxEndPositions()) {
       Rectangle2D endBox = new Rectangle2D.Double(endCenter.getX(), endCenter.getY(), w, w);
-      boxEndOriginal.add(endBox);
+      Rectangle2D endBoxGrown = Util.grow(endBox, MAX_ERROR);
+      boxEndOriginal.add(endBoxGrown);
     }
     this.boxesGoal = new ArrayList<>();
     this.boxesGoal.add(boxEndOriginal);
@@ -82,7 +85,8 @@ public class MovingBoxPlanner {
 
   }
 
-  public List<Point2D> findNewPath(Point2D p, int boxIndex) {
+  // p1 and p2 are the end points of the robot line
+  public List<Point2D> findNewPath(Point2D p1, Point2D p2, int boxIndex) {
     System.out.println("Find new path for box #" + boxIndex);
     int listIndex = listIndexes[boxIndex];
     // temporaryObstacles should be empty before this
@@ -90,7 +94,9 @@ public class MovingBoxPlanner {
     double scalingFactor = Math.pow(2, listIndex-1);
     double gw = bw / scalingFactor;
 
-    temporaryObstacles.add(pointToObstacle(p, gw));
+    temporaryObstacles.add(pointToObstacle(p1, p2, gw));
+    List<Rectangle2D> tempObs = new ArrayList<>();
+    tempObs.add(temporaryObstacles.get(0));
 
     for (int i = 1; i <= numExtensions; i++) {
       // extend temporary Obstacles
@@ -98,8 +104,6 @@ public class MovingBoxPlanner {
       double margin = (scalingFactor - 1) / scalingFactor * bw;
       gw = bw / scalingFactor;
       // should only be one element in the list
-      List<Rectangle2D> tempObs = new ArrayList<>();
-      tempObs.add(temporaryObstacles.get(0));
       Rectangle2D fittedObstacle = fittedRects(tempObs, gw, margin ).get(0);
       this.temporaryObstacles.add(fittedObstacle);
     }
@@ -316,12 +320,31 @@ public class MovingBoxPlanner {
     return fittedRect;
   }
 
-  private Rectangle2D pointToObstacle(Point2D point, double gw) {
-    double x = point.getX();
-    double y = point.getY();
-    double bottomLeftX = x - gw/2;
-    double bottomLeftY = y - gw/2;
-    Rectangle2D tempObstacle = new Rectangle2D.Double(bottomLeftX, bottomLeftY, gw, gw);
+  private Rectangle2D pointToObstacle(Point2D p1, Point2D p2, double gw) {
+    double x1 = p1.getX();
+    double y1 = p1.getY();
+    double x2 = p2.getX();
+    double y2 = p2.getY();
+    double xDiff = Math.abs(x1 - x2);
+    double yDiff = Math.abs(y1 - y2);
+    double obstacleWidth = gw/4;
+    double bottom, left, height, width = 0;
+
+    if (xDiff > yDiff) {
+      // line is horizontal ____
+      bottom = y1 - obstacleWidth/2;
+      left = Math.min(x1, x2);
+      height = obstacleWidth;
+      width = gw;
+    } else {
+      // line is vertical |
+      bottom = Math.min(y1, y2);
+      left = x1 - obstacleWidth/2;
+      height = gw;
+      width = obstacleWidth;
+    }
+    Rectangle2D tempObstacle = new Rectangle2D.Double(left, bottom, width, height);
+    // todo: make a much smaller rectangular obstacle
     return tempObstacle;
   }
 
