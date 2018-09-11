@@ -40,6 +40,10 @@ public class Planner {
         }
 
         List<List<Point2D>> boxPaths = boxPlanner.findAllBoxPaths();
+        if (boxPaths == null) {
+            System.err.println("no solution");
+            return;
+        }
         List<Integer> indexList = boxPlanner.getIndexList();
         RobotConfig currentConfig = ps.getInitialRobotConfig();
         for (int i = 0; i < boxPaths.size(); i++) {
@@ -48,15 +52,21 @@ public class Planner {
 
             obstacles.remove(boxIndex);
 
-            Point2D failPoint = calcPaths(currentConfig, boxIndex, path, obstacles);
-            while (failPoint != null) {
-                System.out.println("failed at: " + failPoint);
-                List<Point2D> newPath = boxPlanner.findNewPath(failPoint, boxIndex);
+            RobotConfig failConfig = calcPaths(currentConfig, boxIndex, path, obstacles);
+            while (failConfig != null) {
+                System.out.println("failed at: " + failConfig.getPos() + " | " + failConfig.getOrientation());
+                List<Point2D> newPath = boxPlanner.findNewPath(
+                        new Point2D.Double(failConfig.getX1(ps.getRobotWidth()), failConfig.getY1(ps.getRobotWidth())),
+                        new Point2D.Double(failConfig.getX2(ps.getRobotWidth()), failConfig.getY2(ps.getRobotWidth())),
+                        boxIndex);
                 if (newPath == null) {
+                    // ### uncomment to test in visualizer ###
+                    // movingBoxPaths.remove(0);
+                    // outputPath(outputFile);
                     System.err.println("no solution");
                     return;
                 }
-                failPoint = calcPaths(currentConfig, boxIndex, newPath, obstacles);
+                failConfig = calcPaths(currentConfig, boxIndex, newPath, obstacles);
             }
             obstacles.add(boxIndex, Util.pointToRect(path.get(path.size() - 1), ps.getRobotWidth()));
             currentConfig = robotPath.get(robotPath.size() - 1);
@@ -67,7 +77,7 @@ public class Planner {
         outputPath(outputFile);
     }
 
-    private Point2D calcPaths(RobotConfig initConfig, int boxIndex, List<Point2D> boxPath,
+    private RobotConfig calcPaths(RobotConfig initConfig, int boxIndex, List<Point2D> boxPath,
             List<Rectangle2D> staticObstacles) {
         List<DirectionalLine> lines = splitByDirection(boxPath);
         RobotConfig currentConfig = initConfig;
@@ -86,7 +96,10 @@ public class Planner {
             obstacles.add(Util.pointToRect(line.startPosition, robotWidth));
             List<RobotConfig> pathToStart = rrt.calculatePath(currentConfig, nextConfig, robotWidth, obstacles);
             if (pathToStart == null) {
-                return line.startPosition;
+                // ### uncomment to test in visualizer ###
+                // robotPath.addAll(tempRobotPath);
+                // movingBoxPaths.addAll(tempMovingBoxPaths);
+                return nextConfig;
             }
             tempRobotPath.addAll(pathToStart);
 
