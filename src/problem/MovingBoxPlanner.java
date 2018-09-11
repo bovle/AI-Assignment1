@@ -85,16 +85,8 @@ public class MovingBoxPlanner {
 
   }
 
-<<<<<<< HEAD
   // p1 and p2 are the end points of the robot line
   public List<Point2D> findNewPath(Point2D p1, Point2D p2, int boxIndex) {
-=======
-  public List<Point2D> findNewPath(Point2D p1, Point2D p2, int boxIndex) {
-    return null;
-  }
-
-  public List<Point2D> findNewPath(Point2D p, int boxIndex) {
->>>>>>> e8f85b5a860ddbd648e6da4986a7180fa7baf0bf
     System.out.println("Find new path for box #" + boxIndex);
     int listIndex = listIndexes[boxIndex];
     // temporaryObstacles should be empty before this
@@ -112,13 +104,7 @@ public class MovingBoxPlanner {
       double margin = (scalingFactor - 1) / scalingFactor * bw;
       gw = bw / scalingFactor;
       // should only be one element in the list
-<<<<<<< HEAD
-      Rectangle2D fittedObstacle = fittedRects(tempObs, gw, margin ).get(0);
-=======
-      List<Rectangle2D> tempObs = new ArrayList<>();
-      tempObs.add(temporaryObstacles.get(0));
       Rectangle2D fittedObstacle = fittedRects(tempObs, gw, margin).get(0);
->>>>>>> e8f85b5a860ddbd648e6da4986a7180fa7baf0bf
       this.temporaryObstacles.add(fittedObstacle);
     }
 
@@ -345,19 +331,19 @@ public class MovingBoxPlanner {
     double y2 = p2.getY();
     double xDiff = Math.abs(x1 - x2);
     double yDiff = Math.abs(y1 - y2);
-    double obstacleWidth = gw/4;
+    double obstacleWidth = gw / 4;
     double bottom, left, height, width = 0;
 
     if (xDiff > yDiff) {
       // line is horizontal ____
-      bottom = y1 - obstacleWidth/2;
+      bottom = y1 - obstacleWidth / 2;
       left = Math.min(x1, x2);
       height = obstacleWidth;
       width = gw;
     } else {
       // line is vertical |
       bottom = Math.min(y1, y2);
-      left = x1 - obstacleWidth/2;
+      left = x1 - obstacleWidth / 2;
       height = gw;
       width = obstacleWidth;
     }
