@@ -85,16 +85,9 @@ public class MovingBoxPlanner {
 
   }
 
-<<<<<<< HEAD
   // p1 and p2 are the end points of the robot line
   public List<Point2D> findNewPath(Point2D p1, Point2D p2, int boxIndex) {
-=======
-  public List<Point2D> findNewPath(Point2D p1, Point2D p2, int boxIndex) {
-    return null;
-  }
 
-  public List<Point2D> findNewPath(Point2D p, int boxIndex) {
->>>>>>> e8f85b5a860ddbd648e6da4986a7180fa7baf0bf
     System.out.println("Find new path for box #" + boxIndex);
     int listIndex = listIndexes[boxIndex];
     // temporaryObstacles should be empty before this
@@ -112,13 +105,8 @@ public class MovingBoxPlanner {
       double margin = (scalingFactor - 1) / scalingFactor * bw;
       gw = bw / scalingFactor;
       // should only be one element in the list
-<<<<<<< HEAD
+
       Rectangle2D fittedObstacle = fittedRects(tempObs, gw, margin ).get(0);
-=======
-      List<Rectangle2D> tempObs = new ArrayList<>();
-      tempObs.add(temporaryObstacles.get(0));
-      Rectangle2D fittedObstacle = fittedRects(tempObs, gw, margin).get(0);
->>>>>>> e8f85b5a860ddbd648e6da4986a7180fa7baf0bf
       this.temporaryObstacles.add(fittedObstacle);
     }
 
@@ -133,6 +121,7 @@ public class MovingBoxPlanner {
     }
     // clear temporaryObstacles for next time
     this.temporaryObstacles = new ArrayList<>();
+
     return newPath;
   }
 
