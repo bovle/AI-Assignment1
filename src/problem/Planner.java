@@ -23,7 +23,7 @@ public class Planner {
         boxPlanner = new MovingBoxPlanner(ps);
     }
 
-    public void plan() throws IOException {
+    public void plan(String outputFile) throws IOException {
         robotPath = new ArrayList<>();
         movingBoxPaths = new ArrayList<>();
         movingBoxPaths.add(new ArrayList());
@@ -64,7 +64,7 @@ public class Planner {
 
         movingBoxPaths.remove(0);
 
-        outputPath();
+        outputPath(outputFile);
     }
 
     private Point2D calcPaths(RobotConfig initConfig, int boxIndex, List<Point2D> boxPath,
@@ -178,8 +178,8 @@ public class Planner {
         }
     }
 
-    public void outputPath() throws IOException {
-        FileWriter fw = new FileWriter("output.txt");
+    public void outputPath(String outputFile) throws IOException {
+        FileWriter fw = new FileWriter(outputFile);
         PrintWriter pw = new PrintWriter(fw);
         pw.println(robotPath.size());
         System.out.println(robotPath.size() + " | " + movingBoxPaths.size());

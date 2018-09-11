@@ -17,7 +17,11 @@ public class Main {
         try {
             ps.loadProblem(args[0]);
             Planner planner = new Planner(ps);
-            planner.plan();
+            String outputFile = "output.txt";
+            if (args.length > 1) {
+              outputFile = args[1];
+            }
+            planner.plan(outputFile);
 
         } catch (IOException e) {
             System.out.println("IO Exception occured");
