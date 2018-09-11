@@ -35,4 +35,9 @@ public class Util {
   public static Point2D rectToPoint(Rectangle2D rect) {
     return new Point2D.Double(rect.getCenterX(), rect.getCenterY());
   }
+
+  public static Rectangle2D grow(Rectangle2D rect, double delta) {
+    return new Rectangle2D.Double(rect.getX() - delta, rect.getY() - delta, rect.getWidth() + 2 * delta,
+        rect.getHeight() + 2 * delta);
+  }
 }

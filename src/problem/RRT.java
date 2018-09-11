@@ -157,18 +157,19 @@ public class RRT {
         if (!border.contains(robotLine.getP1()) || !border.contains(robotLine.getP2()))
             return false;
 
+        int closeObstacles = 0;
         for (int i = 0; i < obstacles.size(); i++) {
-            if (grow(obstacles.get(i), -0.0001).intersectsLine(robotLine)) {
+            if (Util.grow(obstacles.get(i), -0.0001).intersectsLine(robotLine)) {
                 return false;
             }
+            if (Util.grow(obstacles.get(i), 0.0001).intersectsLine(robotLine)) {
+                closeObstacles++;
+            }
         }
-
+        if (closeObstacles > 1) {
+            return false;
+        }
         return true;
-    }
-
-    public Rectangle2D grow(Rectangle2D rect, double delta) {
-        return new Rectangle2D.Double(rect.getX() - delta, rect.getY() - delta, rect.getWidth() + 2 * delta,
-                rect.getHeight() + 2 * delta);
     }
 
     public double distToNearestForbidden(RobotConfig config) {
@@ -177,7 +178,7 @@ public class RRT {
                 config.getX2(robotWidth), config.getY2(robotWidth));
 
         for (Rectangle2D rect : obstacles) {
-            double dist = lineToRectDist(configLine, grow(rect, -0.0001));
+            double dist = lineToRectDist(configLine, Util.grow(rect, -0.0001));
             if (dist < shortestDist)
                 shortestDist = dist;
         }

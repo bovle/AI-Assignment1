@@ -82,25 +82,29 @@ public class MovingBoxPlanner {
 
   }
 
+  public List<Point2D> findNewPath(Point2D p1, Point2D p2, int boxIndex) {
+    return null;
+  }
+
   public List<Point2D> findNewPath(Point2D p, int boxIndex) {
     System.out.println("Find new path for box #" + boxIndex);
     int listIndex = listIndexes[boxIndex];
     // temporaryObstacles should be empty before this
     double bw = problemSpec.getRobotWidth();
-    double scalingFactor = Math.pow(2, listIndex-1);
+    double scalingFactor = Math.pow(2, listIndex - 1);
     double gw = bw / scalingFactor;
 
     temporaryObstacles.add(pointToObstacle(p, gw));
 
     for (int i = 1; i <= numExtensions; i++) {
       // extend temporary Obstacles
-      scalingFactor = Math.pow(2, i-1);
+      scalingFactor = Math.pow(2, i - 1);
       double margin = (scalingFactor - 1) / scalingFactor * bw;
       gw = bw / scalingFactor;
       // should only be one element in the list
       List<Rectangle2D> tempObs = new ArrayList<>();
       tempObs.add(temporaryObstacles.get(0));
-      Rectangle2D fittedObstacle = fittedRects(tempObs, gw, margin ).get(0);
+      Rectangle2D fittedObstacle = fittedRects(tempObs, gw, margin).get(0);
       this.temporaryObstacles.add(fittedObstacle);
     }
 
@@ -110,7 +114,7 @@ public class MovingBoxPlanner {
 
     List<Point2D> newPath = findBoxPath(listIndex, boxIndex);
 
-    for (int i = boxIndex+1; i < numMovingBoxes; i++) {
+    for (int i = boxIndex + 1; i < numMovingBoxes; i++) {
       atGoal[i] = 1;
     }
     // clear temporaryObstacles for next time
@@ -124,7 +128,11 @@ public class MovingBoxPlanner {
     for (int i = 0; i < numMovingBoxes; i++) {
       int boxIndex = ordering[i];
       int listIndex = listIndexes[boxIndex];
-      allPaths.add(findBoxPath(listIndex, boxIndex));
+      List<Point2D> path = findBoxPath(listIndex, boxIndex);
+      if (path == null) {
+        return null;
+      }
+      allPaths.add(path);
     }
     return allPaths;
   }
@@ -139,7 +147,7 @@ public class MovingBoxPlanner {
     System.out.println("*** Finding path for box: " + boxIndex + " ***");
     double bw = problemSpec.getRobotWidth();
     boolean pathFound = false;
-    double scalingFactor = Math.pow(2, listIndex-1);
+    double scalingFactor = Math.pow(2, listIndex - 1);
     List<Point2D> path = new ArrayList<>();
 
     while (!pathFound && listIndex < 5) { // todo: is 5 a reasonable number?
@@ -319,8 +327,8 @@ public class MovingBoxPlanner {
   private Rectangle2D pointToObstacle(Point2D point, double gw) {
     double x = point.getX();
     double y = point.getY();
-    double bottomLeftX = x - gw/2;
-    double bottomLeftY = y - gw/2;
+    double bottomLeftX = x - gw / 2;
+    double bottomLeftY = y - gw / 2;
     Rectangle2D tempObstacle = new Rectangle2D.Double(bottomLeftX, bottomLeftY, gw, gw);
     return tempObstacle;
   }
@@ -338,7 +346,7 @@ public class MovingBoxPlanner {
   // index i is to know which inner lists to check
   public GridType isObstacle(Point2D p, int listIndex, int boxIndex) {
     double bw = problemSpec.getRobotWidth();
-    double scalingFactor = Math.pow(2, listIndex-1);
+    double scalingFactor = Math.pow(2, listIndex - 1);
     double margin = (scalingFactor - 1) / scalingFactor * bw;
 
     if (pointOutside(p, margin)) {
