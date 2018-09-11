@@ -334,19 +334,19 @@ public class MovingBoxPlanner {
     double y2 = p2.getY();
     double xDiff = Math.abs(x1 - x2);
     double yDiff = Math.abs(y1 - y2);
-    double obstacleWidth = gw/4;
+    double obstacleWidth = gw / 4;
     double bottom, left, height, width = 0;
 
     if (xDiff > yDiff) {
       // line is horizontal ____
-      bottom = y1 - obstacleWidth/2;
+      bottom = y1 - obstacleWidth / 2;
       left = Math.min(x1, x2);
       height = obstacleWidth;
       width = gw;
     } else {
       // line is vertical |
       bottom = Math.min(y1, y2);
-      left = x1 - obstacleWidth/2;
+      left = x1 - obstacleWidth / 2;
       height = gw;
       width = obstacleWidth;
     }
@@ -369,18 +369,21 @@ public class MovingBoxPlanner {
   public GridType isObstacle(Point2D p, int listIndex, int boxIndex) {
     double bw = problemSpec.getRobotWidth();
     double scalingFactor = Math.pow(2, listIndex - 1);
+    double gw = bw / scalingFactor;
     double margin = (scalingFactor - 1) / scalingFactor * bw;
+
+    Rectangle2D gridCell = new Rectangle2D.Double(p.getX() + (gw / 2), p.getY() + (gw / 2), gw, gw);
 
     if (pointOutside(p, margin)) {
       return GridType.STAT_OBS;
     }
-    if (isInList(staticObstacles.get(listIndex), p)) {
+    if (isInList(staticObstacles.get(listIndex), gridCell)) {
       return GridType.STAT_OBS;
     }
-    if (isInList(temporaryObstacles, p)) {
+    if (isInList(temporaryObstacles, gridCell)) {
       return GridType.STAT_OBS;
     }
-    if (isInList(movingObstacles.get(listIndex), p)) {
+    if (isInList(movingObstacles.get(listIndex), gridCell)) {
       return GridType.MOV_OBS;
     }
     if (startOrGoal(p, listIndex, boxIndex)) {
@@ -405,6 +408,16 @@ public class MovingBoxPlanner {
 
         }
       }
+    }
+    return false;
+  }
+
+  private boolean isInList(List<Rectangle2D> list, Rectangle2D gridCell) {
+    for (Rectangle2D r : list) {
+      if (r.intersects(gridCell)) {
+        return true;
+      }
+
     }
     return false;
   }

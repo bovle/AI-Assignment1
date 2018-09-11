@@ -162,15 +162,15 @@ public class Planner {
     }
 
     private RobotConfig robotConfigFromBoxPos(Point2D boxPos, double movementDirection) {
-        double x = boxPos.getX() - (Math.cos(movementDirection) * (ps.getRobotWidth() / 2));
-        double y = boxPos.getY() - (Math.sin(movementDirection) * (ps.getRobotWidth() / 2));
+        double x = boxPos.getX() - (Math.cos(movementDirection) * ((ps.getRobotWidth() / 2) + 0.00005));
+        double y = boxPos.getY() - (Math.sin(movementDirection) * ((ps.getRobotWidth() / 2) + 0.00005));
         double direction = movementDirection - (Math.PI / 2);
         return new RobotConfig(new double[] { x, y }, direction);
     }
 
     private Point2D boxPosFromRobotConfig(RobotConfig config, double movementDirection) {
-        double x = config.getPos().getX() + (Math.cos(movementDirection) * (ps.getRobotWidth() / 2));
-        double y = config.getPos().getY() + (Math.sin(movementDirection) * (ps.getRobotWidth() / 2));
+        double x = config.getPos().getX() + (Math.cos(movementDirection) * ((ps.getRobotWidth() / 2) + 0.00005));
+        double y = config.getPos().getY() + (Math.sin(movementDirection) * ((ps.getRobotWidth() / 2) + 0.00005));
         return new Point2D.Double(x, y);
     }
 

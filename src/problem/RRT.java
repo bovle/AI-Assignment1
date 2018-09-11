@@ -159,7 +159,7 @@ public class RRT {
 
         int closeObstacles = 0;
         for (int i = 0; i < obstacles.size(); i++) {
-            if (Util.grow(obstacles.get(i), -0.0001).intersectsLine(robotLine)) {
+            if (obstacles.get(i).intersectsLine(robotLine)) {
                 return false;
             }
             if (Util.grow(obstacles.get(i), 0.0001).intersectsLine(robotLine)) {
@@ -178,7 +178,7 @@ public class RRT {
                 config.getX2(robotWidth), config.getY2(robotWidth));
 
         for (Rectangle2D rect : obstacles) {
-            double dist = lineToRectDist(configLine, Util.grow(rect, -0.0001));
+            double dist = lineToRectDist(configLine, rect);
             if (dist < shortestDist)
                 shortestDist = dist;
         }
