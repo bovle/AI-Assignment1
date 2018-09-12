@@ -132,6 +132,7 @@ public class MovingBoxPlanner {
       int boxIndex = ordering[i];
       int listIndex = listIndexes[boxIndex];
       List<Point2D> path = findBoxPath(listIndex, boxIndex);
+
       if (path == null) {
         return null;
       }
@@ -384,7 +385,7 @@ public class MovingBoxPlanner {
       return GridType.MOV_OBS;
     }
     if (startOrGoal(p, listIndex, boxIndex)) {
-      return GridType.MOV_OBS;
+      return GridType.MOV_BOX;
     }
     return GridType.FREE;
   }

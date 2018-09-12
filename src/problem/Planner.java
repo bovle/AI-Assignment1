@@ -34,6 +34,7 @@ public class Planner {
         }
         for (Box box : ps.getMovingObstacles()) {
             obstacles.add(box.getRect());
+            movingBoxPaths.get(0).add(new Point2D.Double(box.getRect().getCenterX(), box.getRect().getCenterY()));
         }
         for (StaticObstacle box : ps.getStaticObstacles()) {
             obstacles.add(box.getRect());
@@ -50,7 +51,7 @@ public class Planner {
             List<Point2D> path = boxPaths.get(i);
             int boxIndex = indexList.get(i);
 
-            obstacles.remove(boxIndex);
+            Rectangle2D movingRect = obstacles.remove(boxIndex);
 
             RobotConfig failConfig = calcPaths(currentConfig, boxIndex, path, obstacles);
             while (failConfig != null) {
@@ -68,7 +69,7 @@ public class Planner {
                 }
                 failConfig = calcPaths(currentConfig, boxIndex, newPath, obstacles);
             }
-            obstacles.add(boxIndex, Util.pointToRect(path.get(path.size() - 1), ps.getRobotWidth()));
+            obstacles.add(boxIndex, Util.pointToRect(path.get(path.size() - 1), movingRect.getWidth()));
             currentConfig = robotPath.get(robotPath.size() - 1);
         }
 
@@ -85,7 +86,7 @@ public class Planner {
         List<RobotConfig> tempRobotPath = new ArrayList<>();
         List<List<Point2D>> tempMovingBoxPaths = new ArrayList<>();
         tempMovingBoxPaths.add(new ArrayList<>());
-        for (int i = 0; i < ps.getMovingBoxes().size(); i++) {
+        for (int i = 0; i < ps.getMovingBoxes().size() + ps.getMovingObstacles().size(); i++) {
             tempMovingBoxPaths.get(0).add(movingBoxPaths.get(movingBoxPaths.size() - 1).get(i));
         }
         for (int i = 0; i < lines.size(); i++) {
@@ -182,7 +183,7 @@ public class Planner {
             double movementDirection) {
         boxPaths.add(new ArrayList<>());
         int stepnr = boxPaths.size() - 1;
-        for (int i = 0; i < ps.getMovingBoxes().size(); i++) {
+        for (int i = 0; i < ps.getMovingBoxes().size() + ps.getMovingObstacles().size(); i++) {
             if (i == indexToMove) {
                 boxPaths.get(stepnr).add(boxPosFromRobotConfig(configToMatch, movementDirection));
             } else {
@@ -201,11 +202,8 @@ public class Planner {
             double y = robotPath.get(i).getPos().getY();
             double angle = robotPath.get(i).getOrientation();
             String obstacleString = "";
-            for (int j = 0; j < ps.getMovingBoxes().size(); j++) {
+            for (int j = 0; j < ps.getMovingBoxes().size() + ps.getMovingObstacles().size(); j++) {
                 obstacleString += " " + movingBoxPaths.get(i).get(j).getX() + " " + movingBoxPaths.get(i).get(j).getY();
-            }
-            for (Box box : ps.getMovingObstacles()) {
-                obstacleString += " " + box.getRect().getCenterX() + " " + box.getRect().getCenterY();
             }
 
             pw.println(x + " " + y + " " + angle + obstacleString);

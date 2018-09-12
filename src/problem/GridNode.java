@@ -2,7 +2,6 @@ package problem;
 
 import java.awt.geom.Point2D;
 
-
 public class GridNode implements Comparable<GridNode> {
 
   public GridNode parent;
@@ -12,7 +11,7 @@ public class GridNode implements Comparable<GridNode> {
   public double fCost; // gCost + hCost
   public int depth;
   public Point2D pos; // position of this GridNode, CENTER
-  public Neighbour neighbours[]; //todo
+  public Neighbour neighbours[]; // todo
 
   /**
    * Creates a root gridNode, the starting node
@@ -32,13 +31,19 @@ public class GridNode implements Comparable<GridNode> {
   /**
    * Creates a non-root gridNode,
    */
-  public GridNode(MovingBoxPlanner planner, GridNode parent, GridType type, double hCost, Point2D pos, double gridWidth, int listIndex, int boxIndex) {
+  public GridNode(MovingBoxPlanner planner, GridNode parent, GridType type, double hCost, Point2D pos, double gridWidth,
+      int listIndex, int boxIndex) {
     this.parent = parent;
-    /* gCost: assume the cost increases with the width of the "gridcell" for every step you take.
-     * todo: Room for improvement: extra cost if making a turn or if it's a moving obstacle
+    /*
+     * gCost: assume the cost increases with the width of the "gridcell" for every
+     * step you take. todo: Room for improvement: extra cost if making a turn or if
+     * it's a moving obstacle
      */
     this.type = type;
     this.gCost = parent.gCost + gridWidth;
+    if (type == GridType.MOV_OBS) {
+      this.gCost += 1000;
+    }
     this.hCost = hCost;
     this.fCost = this.gCost + this.hCost;
     this.depth = 0;
@@ -47,16 +52,12 @@ public class GridNode implements Comparable<GridNode> {
     this.setNeighbours(planner, gridWidth, listIndex, boxIndex);
   }
 
-
   private void setNeighbours(MovingBoxPlanner planner, double gridWidth, int listIndex, int boxIndex) {
     double currentX = this.pos.getX();
     double currentY = this.pos.getY();
-    Point2D[] points = {
-      new Point2D.Double(currentX,             currentY + gridWidth),
-      new Point2D.Double(currentX + gridWidth, currentY),
-      new Point2D.Double(currentX,             currentY - gridWidth),
-      new Point2D.Double(currentX - gridWidth, currentY),
-    };
+    Point2D[] points = { new Point2D.Double(currentX, currentY + gridWidth),
+        new Point2D.Double(currentX + gridWidth, currentY), new Point2D.Double(currentX, currentY - gridWidth),
+        new Point2D.Double(currentX - gridWidth, currentY), };
 
     for (int i = 0; i < 4; i++) {
       this.neighbours[i] = new Neighbour(points[i], (planner.isObstacle(points[i], listIndex, boxIndex)));
@@ -66,17 +67,16 @@ public class GridNode implements Comparable<GridNode> {
   /**
    * Compares the F-cost of this node to the F-cost of node g.
    *
-   * Defining a "compareTo" method is necessary in order for gridNodes
-   * to be used in a priority queue.
+   * Defining a "compareTo" method is necessary in order for gridNodes to be used
+   * in a priority queue.
    *
    * @param g node to compare path cost with
-   * @return  -1 if this node has a lower total path cost than node s
-   *          0 if this node has the same total path cost as node s
-   *          1 if this node has a greater total path cost than node s
+   * @return -1 if this node has a lower total path cost than node s 0 if this
+   *         node has the same total path cost as node s 1 if this node has a
+   *         greater total path cost than node s
    */
   public int compareTo(GridNode g) {
-      return Double.compare(this.fCost, g.fCost);
+    return Double.compare(this.fCost, g.fCost);
   }
-
 
 }
