@@ -106,7 +106,7 @@ public class MovingBoxPlanner {
       gw = bw / scalingFactor;
       // should only be one element in the list
 
-      Rectangle2D fittedObstacle = fittedRects(tempObs, gw, margin ).get(0);
+      Rectangle2D fittedObstacle = fittedRects(tempObs, gw, margin).get(0);
       this.temporaryObstacles.add(fittedObstacle);
     }
 
@@ -142,7 +142,7 @@ public class MovingBoxPlanner {
 
   private void normalize(List<Point2D> path, double offset) {
     for (Point2D p : path) {
-      p.setLocation(p.getX() - offset, p.getY() - offset);
+      p.setLocation(p.getX() + offset, p.getY() + offset);
     }
   }
 
