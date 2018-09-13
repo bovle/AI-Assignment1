@@ -8,25 +8,26 @@ import java.util.PriorityQueue;
 
 public class Neighbour {
   public Point2D pos;
-  public GridType type;
+  public GridInfo gridInfo;
 
-  public Neighbour(Point2D pos, GridType type) {
+  public Neighbour(Point2D pos, GridInfo gridInfo) {
     this.pos = pos;
-    this.type = type;
+    this.gridInfo = gridInfo;
   }
 
   public Boolean isInList(List<GridNode> list) {
-      for(GridNode g : list) {
-        if(Util.equalPositions(g.pos, this.pos)) return true;
-      }
-      return false;
+    for (GridNode g : list) {
+      if (Util.equalPositions(g.pos, this.pos))
+        return true;
+    }
+    return false;
   }
 
   public GridNode isInPrioQueue(PriorityQueue<GridNode> queue) {
     Iterator iter = queue.iterator();
-    while(iter.hasNext()) {
-      GridNode current = (GridNode)iter.next();
-      if(Util.equalPositions(current.pos, this.pos)) {
+    while (iter.hasNext()) {
+      GridNode current = (GridNode) iter.next();
+      if (Util.equalPositions(current.pos, this.pos)) {
         return current;
       }
     }
