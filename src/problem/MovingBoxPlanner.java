@@ -108,7 +108,7 @@ public class MovingBoxPlanner {
       gw = bw / scalingFactor;
       // should only be one element in the list
 
-      Rectangle2D fittedObstacle = fittedRects(tempObs, gw, margin ).get(0);
+      Rectangle2D fittedObstacle = fittedRects(tempObs, gw, margin).get(0);
       this.temporaryObstacles.add(fittedObstacle);
     }
 
@@ -134,6 +134,7 @@ public class MovingBoxPlanner {
       int boxIndex = ordering[i];
       int listIndex = listIndexes[boxIndex];
       List<Point2D> path = findBoxPath(listIndex, boxIndex);
+
       if (path == null) {
         return null;
       }
@@ -386,7 +387,7 @@ public class MovingBoxPlanner {
       return GridType.MOV_OBS;
     }
     if (startOrGoal(p, listIndex, boxIndex)) {
-      return GridType.MOV_OBS;
+      return GridType.MOV_BOX;
     }
     return GridType.FREE;
   }

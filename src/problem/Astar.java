@@ -44,10 +44,13 @@ public class Astar {
 
       // For each neighbour...
       for (Neighbour n : currentNode.neighbours) {
-        if (!(n.type != GridType.FREE || n.isInList(this.evaluated))) { // n.type == GridType.STAT_OBS
+        if ((n.type == GridType.FREE || n.type == GridType.MOV_OBS) && !n.isInList(this.evaluated)) {
           GridNode neighbourInOpen = n.isInPrioQueue(this.open);
           // todo: improve the calculation of cost
           double newPathCost = currentNode.gCost + gridWidth;
+          if (n.type == GridType.MOV_OBS) {
+            newPathCost += 1000; // only go through movable obstacles if needed
+          }
 
           if (neighbourInOpen == null || (neighbourInOpen != null && newPathCost < neighbourInOpen.gCost)) {
             if (neighbourInOpen != null) {
