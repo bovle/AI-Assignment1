@@ -77,6 +77,8 @@ public class MovingBoxPlanner {
       listIndexes[i] = 1;
     }
 
+    this.totalOrdering = new ArrayList<>();
+
     // temporaryObstacles
     this.temporaryObstacles = new ArrayList<>();
 
@@ -142,7 +144,7 @@ public class MovingBoxPlanner {
 
   private void normalize(List<Point2D> path, double offset) {
     for (Point2D p : path) {
-      p.setLocation(p.getX() - offset, p.getY() - offset);
+      p.setLocation(p.getX() + offset, p.getY() + offset);
     }
   }
 
@@ -166,8 +168,8 @@ public class MovingBoxPlanner {
         atGoal[boxIndex] = 1;
         listIndexes[boxIndex] = listIndex;
       } else {
-        scalingFactor *= 2;
         listIndex++;
+        scalingFactor = Math.pow(2, listIndex - 1);
         System.out.println("New gridsize: " + bw / scalingFactor);
       }
     }
