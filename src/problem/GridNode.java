@@ -5,7 +5,7 @@ import java.awt.geom.Point2D;
 public class GridNode implements Comparable<GridNode> {
 
   public GridNode parent;
-  public GridType type;
+  public GridInfo gridInfo;
   public double gCost; // cost from start to current node
   public double hCost; // cost from current node to goal
   public double fCost; // gCost + hCost
@@ -18,7 +18,7 @@ public class GridNode implements Comparable<GridNode> {
    */
   public GridNode(MovingBoxPlanner planner, double hCost, Point2D pos, double gridWidth, int listIndex, int boxIndex) {
     this.parent = null;
-    this.type = GridType.FREE; /* assuming we don't start on a obstacle */
+    this.gridInfo = new GridInfo(GridType.FREE, -1); /* assuming we don't start on a obstacle */
     this.gCost = 0;
     this.hCost = hCost;
     this.fCost = this.gCost + this.hCost;
@@ -31,17 +31,18 @@ public class GridNode implements Comparable<GridNode> {
   /**
    * Creates a non-root gridNode,
    */
-  public GridNode(MovingBoxPlanner planner, GridNode parent, GridType type, double hCost, Point2D pos, double gridWidth,
-      int listIndex, int boxIndex) {
+  public GridNode(MovingBoxPlanner planner, GridNode parent, GridInfo gridInfo, double hCost, Point2D pos,
+      double gridWidth, int listIndex, int boxIndex) {
     this.parent = parent;
     /*
      * gCost: assume the cost increases with the width of the "gridcell" for every
      * step you take. todo: Room for improvement: extra cost if making a turn or if
      * it's a moving obstacle
      */
-    this.type = type;
+    this.gridInfo = gridInfo;
     this.gCost = parent.gCost + gridWidth;
-    if (type == GridType.MOV_OBS) {
+    if (this.gridInfo.type == GridType.MOV_OBS || this.gridInfo.type == GridType.MOV_BOX_START
+        || this.gridInfo.type == GridType.MOV_BOX_GOAL) {
       this.gCost += 1000;
     }
     this.hCost = hCost;

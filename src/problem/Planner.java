@@ -54,21 +54,31 @@ public class Planner {
             Rectangle2D movingRect = obstacles.remove(boxIndex);
 
             RobotConfig failConfig = calcPaths(currentConfig, boxIndex, path, obstacles);
-            while (failConfig != null) {
+            if (failConfig != null) {
                 System.out.println("failed at: " + failConfig.getPos() + " | " + failConfig.getOrientation());
-                List<Point2D> newPath = boxPlanner.findNewPath(
-                        new Point2D.Double(failConfig.getX1(ps.getRobotWidth()), failConfig.getY1(ps.getRobotWidth())),
-                        new Point2D.Double(failConfig.getX2(ps.getRobotWidth()), failConfig.getY2(ps.getRobotWidth())),
-                        boxIndex);
-                if (newPath == null) {
-                    // ### uncomment to test in visualizer ###
-                    // movingBoxPaths.remove(0);
-                    // outputPath(outputFile);
-                    System.err.println("no solution");
-                    return;
-                }
-                failConfig = calcPaths(currentConfig, boxIndex, newPath, obstacles);
+                movingBoxPaths.remove(0);
+                outputPath(outputFile);
+                System.err.println("no solution");
+                return;
             }
+            // while (failConfig != null) {
+            // System.out.println("failed at: " + failConfig.getPos() + " | " +
+            // failConfig.getOrientation());
+            // List<Point2D> newPath = boxPlanner.findNewPath(
+            // new Point2D.Double(failConfig.getX1(ps.getRobotWidth()),
+            // failConfig.getY1(ps.getRobotWidth())),
+            // new Point2D.Double(failConfig.getX2(ps.getRobotWidth()),
+            // failConfig.getY2(ps.getRobotWidth())),
+            // boxIndex);
+            // if (newPath == null) {
+            // // ### uncomment to test in visualizer ###
+            // movingBoxPaths.remove(0);
+            // outputPath(outputFile);
+            // System.err.println("no solution");
+            // return;
+            // }
+            // failConfig = calcPaths(currentConfig, boxIndex, newPath, obstacles);
+            // }
             obstacles.add(boxIndex, Util.pointToRect(path.get(path.size() - 1), movingRect.getWidth()));
             currentConfig = robotPath.get(robotPath.size() - 1);
         }
@@ -98,8 +108,8 @@ public class Planner {
             List<RobotConfig> pathToStart = rrt.calculatePath(currentConfig, nextConfig, robotWidth, obstacles);
             if (pathToStart == null) {
                 // ### uncomment to test in visualizer ###
-                // robotPath.addAll(tempRobotPath);
-                // movingBoxPaths.addAll(tempMovingBoxPaths);
+                robotPath.addAll(tempRobotPath);
+                movingBoxPaths.addAll(tempMovingBoxPaths);
                 return nextConfig;
             }
             tempRobotPath.addAll(pathToStart);

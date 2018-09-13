@@ -7,6 +7,8 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.lang.*;
 
@@ -26,6 +28,7 @@ public class MovingBoxPlanner {
 
   public MovingBoxPlanner(ProblemSpec ps) {
     this.problemSpec = ps;
+    this.ordering = new Integer[ps.getNumMovingBoxes()];
     // static obstacles
     List<Rectangle2D> statObsOriginal = new ArrayList<>();
     for (StaticObstacle box : ps.getStaticObstacles()) {
@@ -82,79 +85,162 @@ public class MovingBoxPlanner {
     // temporaryObstacles
     this.temporaryObstacles = new ArrayList<>();
 
-    setOrder();
     this.numExtensions = 0;
 
   }
 
   // p1 and p2 are the end points of the robot line
-  public List<Point2D> findNewPath(Point2D p1, Point2D p2, int boxIndex) {
+  // public List<Point2D> findNewPath(Point2D p1, Point2D p2, int boxIndex) {
 
-    System.out.println("Find new path for box #" + boxIndex);
-    int listIndex = listIndexes[boxIndex];
-    // temporaryObstacles should be empty before this
-    double bw = problemSpec.getRobotWidth();
-    double scalingFactor = Math.pow(2, listIndex - 1);
-    double gw = bw / scalingFactor;
+  // System.out.println("Find new path for box #" + boxIndex);
+  // int listIndex = listIndexes[boxIndex];
+  // // temporaryObstacles should be empty before this
+  // double bw = problemSpec.getRobotWidth();
+  // double scalingFactor = Math.pow(2, listIndex - 1);
+  // double gw = bw / scalingFactor;
 
-    temporaryObstacles.add(pointToObstacle(p1, p2, gw));
-    List<Rectangle2D> tempObs = new ArrayList<>();
-    tempObs.add(temporaryObstacles.get(0));
+  // temporaryObstacles.add(pointToObstacle(p1, p2, gw));
+  // List<Rectangle2D> tempObs = new ArrayList<>();
+  // tempObs.add(temporaryObstacles.get(0));
 
-    for (int i = 1; i <= numExtensions; i++) {
-      // extend temporary Obstacles
-      scalingFactor = Math.pow(2, i - 1);
-      double margin = (scalingFactor - 1) / scalingFactor * bw;
-      gw = bw / scalingFactor;
-      // should only be one element in the list
+  // for (int i = 1; i <= numExtensions; i++) {
+  // // extend temporary Obstacles
+  // scalingFactor = Math.pow(2, i - 1);
+  // double margin = (scalingFactor - 1) / scalingFactor * bw;
+  // gw = bw / scalingFactor;
+  // // should only be one element in the list
 
-      Rectangle2D fittedObstacle = fittedRects(tempObs, gw, margin).get(0);
-      this.temporaryObstacles.add(fittedObstacle);
-    }
+  // Rectangle2D fittedObstacle = fittedRects(tempObs, gw, margin).get(0);
+  // this.temporaryObstacles.add(fittedObstacle);
+  // }
 
-    for (int i = boxIndex; i < numMovingBoxes; i++) {
-      atGoal[i] = 0;
-    }
+  // for (int i = boxIndex; i < numMovingBoxes; i++) {
+  // atGoal[i] = 0;
+  // }
 
-    List<Point2D> newPath = findBoxPath(listIndex, boxIndex);
+  // List<Point2D> newPath = findBoxPath(listIndex, boxIndex);
 
-    for (int i = boxIndex + 1; i < numMovingBoxes; i++) {
-      atGoal[i] = 1;
-    }
-    // clear temporaryObstacles for next time
-    this.temporaryObstacles = new ArrayList<>();
+  // for (int i = boxIndex + 1; i < numMovingBoxes; i++) {
+  // atGoal[i] = 1;
+  // }
+  // // clear temporaryObstacles for next time
+  // this.temporaryObstacles = new ArrayList<>();
 
-    return newPath;
-  }
+  // return newPath;
+  // }
 
   public List<List<Point2D>> findAllBoxPaths() {
-    List<List<Point2D>> allPaths = new ArrayList<>();
+    List<BoxPath> allPaths = new ArrayList<>();
 
     for (int i = 0; i < numMovingBoxes; i++) {
-      int boxIndex = ordering[i];
-      int listIndex = listIndexes[boxIndex];
-      List<Point2D> path = findBoxPath(listIndex, boxIndex);
+      int listIndex = listIndexes[i];
+      BoxPath path = findBoxPath(listIndex, i);
 
       if (path == null) {
         return null;
       }
       allPaths.add(path);
     }
-    return allPaths;
+    List<Integer> order = getOrder(allPaths);
+
+    if (order == null) {
+      return null;
+    }
+
+    for (int i = 0; i < order.size(); i++) {
+      this.ordering[i] = order.get(i);
+      System.out.println(order.get(i));
+    }
+
+    return getResultPaths(allPaths);
   }
 
-  private void normalize(List<Point2D> path, double offset) {
-    for (Point2D p : path) {
+  private List<List<Point2D>> getResultPaths(List<BoxPath> allPaths) {
+    List<List<Point2D>> result = new ArrayList<>();
+    for (int i = 0; i < ordering.length; i++) {
+      BoxPath path = allPaths.get(ordering[i]);
+      List<Point2D> pointPath = new ArrayList<>();
+      pointPath.addAll(path.startPath);
+      for (GridNode g : path.gridPath) {
+        pointPath.add(g.pos);
+      }
+      pointPath.addAll(path.endPath);
+      result.add(pointPath);
+    }
+    return result;
+  }
+
+  private List<Integer> getOrder(List<BoxPath> allPaths) {
+    class orderObject {
+      int index;
+      List<Integer> before;
+      List<Integer> after;
+
+      orderObject(int index) {
+        this.index = index;
+        before = new ArrayList<>();
+        after = new ArrayList<>();
+      }
+    }
+    List<orderObject> order = new LinkedList<>();
+    for (int i = 0; i < numMovingBoxes; i++) {
+      orderObject currentBox = new orderObject(i);
+      List<GridNode> gridPath = allPaths.get(i).gridPath;
+      for (GridNode g : gridPath) {
+        if (g.gridInfo.type == GridType.MOV_BOX_START) {
+          int otherBoxIndex = g.gridInfo.boxIndex;
+          if (currentBox.after.contains(otherBoxIndex))
+            return null;
+          currentBox.before.add(otherBoxIndex);
+        }
+        if (g.gridInfo.type == GridType.MOV_BOX_GOAL) {
+          int otherBoxIndex = g.gridInfo.boxIndex;
+          if (currentBox.before.contains(otherBoxIndex))
+            return null;
+          currentBox.after.add(otherBoxIndex);
+        }
+      }
+      order.add(currentBox);
+    }
+    order.sort(new Comparator<orderObject>() {
+      public int compare(orderObject a, orderObject b) {
+        if (a.after.contains(b.index))
+          return -1;
+        if (a.before.contains(b.index))
+          return 1;
+        if (b.after.contains(a.index))
+          return 1;
+        if (b.after.contains(a.index))
+          return -1;
+        return 0;
+      }
+    });
+    List<Integer> result = new ArrayList<>();
+    for (orderObject o : order) {
+      result.add(o.index);
+    }
+    return result;
+  }
+
+  private void normalize(BoxPath path, double offset) {
+    for (Point2D p : path.startPath) {
+      p.setLocation(p.getX() + offset, p.getY() + offset);
+    }
+    for (Point2D p : path.endPath) {
+      p.setLocation(p.getX() + offset, p.getY() + offset);
+    }
+    for (GridNode g : path.gridPath) {
+      Point2D p = g.pos;
       p.setLocation(p.getX() + offset, p.getY() + offset);
     }
   }
 
-  private List<Point2D> findBoxPath(int listIndex, int boxIndex) {
+  private BoxPath findBoxPath(int listIndex, int boxIndex) {
     System.out.println("*** Finding path for box: " + boxIndex + " ***");
     double bw = problemSpec.getRobotWidth();
     boolean pathFound = false;
     double scalingFactor = Math.pow(2, listIndex - 1);
-    List<Point2D> path = new ArrayList<>();
+    BoxPath path = null;
 
     while (!pathFound && listIndex < 5) { // todo: is 5 a reasonable number?
 
@@ -188,10 +274,9 @@ public class MovingBoxPlanner {
     return order;
   }
 
-  public List<Point2D> findBoxPathAux(double bw, double scalingFactor, int listIndex, int boxIndex) {
+  public BoxPath findBoxPathAux(double bw, double scalingFactor, int listIndex, int boxIndex) {
     double gw = bw / scalingFactor;
     double offset = (scalingFactor - 1) * gw / 2;
-    List<Point2D> fullPath = new ArrayList<>();
     List<Point2D> startPath = new ArrayList<>();
     List<Point2D> endPath = new ArrayList<>();
 
@@ -204,26 +289,24 @@ public class MovingBoxPlanner {
     Point2D shrinkedGoal = new Point2D.Double(originalGoalX - offset, originalGoalY - offset);
 
     startPath = pointToGridCenter(shrinkedStart, shrinkedGoal, gw, listIndex, boxIndex);
+    if (startPath == null) {
+      return null;
+    }
     endPath = pointToGridCenter(shrinkedGoal, shrinkedStart, gw, listIndex, boxIndex);
+    if (endPath == null) {
+      return null;
+    }
 
     Collections.reverse(endPath);
 
     Point2D centeredStart = startPath.get(startPath.size() - 1); // get last element in list
     Point2D centeredGoal = endPath.remove(0); // using remove to not get a copy of this point in the path
 
-    fullPath.addAll(startPath);
-
     Astar agent = new Astar();
     List<GridNode> path = (List<GridNode>) agent.search(this, centeredStart, centeredGoal, gw, listIndex, boxIndex);
     if (path == null)
       return null;
-
-    for (GridNode g : path) {
-      fullPath.add(g.pos);
-    }
-
-    fullPath.addAll(endPath);
-    return fullPath;
+    return new BoxPath(path, startPath, endPath);
   }
 
   private Point2D closestPoint(List<Point2D> list, Point2D p) {
@@ -251,17 +334,23 @@ public class MovingBoxPlanner {
     corners.add(new Point2D.Double(x + gw / 2, y + gw / 2)); // topRight
     corners.add(new Point2D.Double(x - gw / 2, y - gw / 2)); // bottomLeft
     corners.add(new Point2D.Double(x + gw / 2, y - gw / 2)); // bottomRight
+
     List<Point2D> gridCenters = new ArrayList<>();
     Point2D currentCenter;
+    int notFreeCount = 0;
     for (Point2D p : corners) {
       currentCenter = getGridCenter(p, gw);
-      if (GridType.FREE == isObstacle(currentCenter, listIndex, boxIndex)) {
+      if (GridType.FREE == isObstacle(currentCenter, listIndex, boxIndex).type) { // need to handle start/goal and
+                                                                                  // movable obstacles here
         gridCenters.add(currentCenter);
       } else {
         gridCenters.add(null);
+        notFreeCount++;
       }
     }
-
+    if (notFreeCount == 4) {
+      return null;
+    }
     // todo: choose center closest to goal?
     Point2D startInGrid = closestPoint(gridCenters, ref);
     // todo: sometimes the middlePoint is the same as one of the others
@@ -280,14 +369,6 @@ public class MovingBoxPlanner {
     double x = gw / 2 + xIndex * gw;
     double y = gw / 2 + yIndex * gw;
     return new Point2D.Double(x, y);
-  }
-
-  private void setOrder() {
-    this.ordering = new Integer[numMovingBoxes];
-    // simple ordering now: just as indexed in input file
-    for (int i = 0; i < numMovingBoxes; i++) {
-      this.ordering[i] = i;
-    }
   }
 
   /*
@@ -362,64 +443,61 @@ public class MovingBoxPlanner {
     return Math.floor(pos / w);
   }
 
-  private boolean pointOutside(Point2D p, double margin) {
+  private boolean pointOutside(Point2D p, double margin, double gridWidth) {
     double x = p.getX();
     double y = p.getY();
-    return (x < 0 || x > 1 - margin || y < 0 || y > 1 - margin);
+    return (x < gridWidth / 2 || x > 1 - margin - (gridWidth / 2) || y < gridWidth / 2
+        || y > 1 - margin - (gridWidth / 2));
   }
 
   // index i is to know which inner lists to check
-  public GridType isObstacle(Point2D p, int listIndex, int boxIndex) {
+  public GridInfo isObstacle(Point2D p, int listIndex, int boxIndex) {
     double bw = problemSpec.getRobotWidth();
     double scalingFactor = Math.pow(2, listIndex - 1);
+    double gw = bw / scalingFactor;
     double margin = (scalingFactor - 1) / scalingFactor * bw;
 
-    if (pointOutside(p, margin)) {
-      return GridType.STAT_OBS;
+    if (pointOutside(p, margin, gw)) {
+      return new GridInfo(GridType.STAT_OBS, -1);
     }
-    if (isInList(staticObstacles.get(listIndex), p)) {
-      return GridType.STAT_OBS;
+    int index;
+    if ((index = isInList(staticObstacles.get(listIndex), p)) > -1) {
+      return new GridInfo(GridType.STAT_OBS, index);
     }
-    if (isInList(temporaryObstacles, p)) {
-      return GridType.STAT_OBS;
+    if ((index = isInList(temporaryObstacles, p)) > -1) {
+      return new GridInfo(GridType.STAT_OBS, index);
     }
-    if (isInList(movingObstacles.get(listIndex), p)) {
-      return GridType.MOV_OBS;
+    if ((index = isInList(movingObstacles.get(listIndex), p)) > -1) {
+      return new GridInfo(GridType.MOV_OBS, index);
     }
-    if (startOrGoal(p, listIndex, boxIndex)) {
-      return GridType.MOV_BOX;
+    if ((index = isInList(boxesStart.get(listIndex), p, boxIndex)) > -1) {
+      return new GridInfo(GridType.MOV_BOX_START, index);
     }
-    return GridType.FREE;
+    if ((index = isInList(boxesGoal.get(listIndex), p, boxIndex)) > -1) {
+      return new GridInfo(GridType.MOV_BOX_GOAL, index);
+    }
+    return new GridInfo(GridType.FREE, -1);
   }
 
-  private boolean startOrGoal(Point2D p, int listIndex, int boxIndex) {
-    List<Rectangle2D> starts = boxesStart.get(listIndex);
-    List<Rectangle2D> goals = boxesGoal.get(listIndex);
-    Rectangle2D currentRect;
-    for (int i = 0; i < starts.size(); i++) {
-      if (i != boxIndex) {
-        if (atGoal[i] == 1) {
-          currentRect = goals.get(i);
-        } else {
-          currentRect = starts.get(i);
-        }
-        if (currentRect.contains(p.getX(), p.getY())) {
-          return true;
+  private int isInList(List<Rectangle2D> list, Point2D p, int currentIndex) {
+    for (int i = 0; i < list.size(); i++) {
+      if (i != currentIndex) {
+        if (list.get(i).contains(p.getX(), p.getY())) {
+          return i;
 
         }
       }
     }
-    return false;
+    return -1;
   }
 
-  private boolean isInList(List<Rectangle2D> list, Point2D p) {
-    for (Rectangle2D r : list) {
-      if (r.contains(p.getX(), p.getY())) {
-        return true;
+  private int isInList(List<Rectangle2D> list, Point2D p) {
+    for (int i = 0; i < list.size(); i++) {
+      if (list.get(i).contains(p.getX(), p.getY())) {
+        return i;
       }
-
     }
-    return false;
+    return -1;
   }
 
 }
