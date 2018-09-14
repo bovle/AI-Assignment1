@@ -42,6 +42,7 @@ public class Util {
     return new Rectangle2D.Double(rect.getX() - delta, rect.getY() - delta, rect.getWidth() + 2 * delta,
         rect.getHeight() + 2 * delta);
   }
+  /*
   public static void normalize(BoxPath path, double offset) {
     for (Point2D p : path.startPath) {
       p.setLocation(p.getX() + offset, p.getY() + offset);
@@ -54,25 +55,47 @@ public class Util {
       p.setLocation(p.getX() + offset, p.getY() + offset);
     }
   }
+*/
+
+  public static void normalize(List<GridNode> path, double offset) {
+    for (GridNode g : path) {
+      g.pos.setLocation(Util.roundToStepSize(g.pos.getX() + offset, 0.000001),
+          Util.roundToStepSize(g.pos.getY() + offset, 0.000001));
+      }
+  }
 
   public static Point2D getGridCenter(Point2D p, double gw) {
-    double xIndex = findGridIndex(p.getX(), gw);
-    double yIndex = findGridIndex(p.getY(), gw);
-    double x = gw / 2 + xIndex * gw;
-    double y = gw / 2 + yIndex * gw;
-    return new Point2D.Double(x, y);
+    double xIndex = findGridIndex(p.getX() + (gw / 2), gw);
+    double yIndex = findGridIndex(p.getY() + (gw / 2), gw);
+    double x = /* gw / 2 + */ xIndex * gw;
+    double y = /* gw / 2 + */ yIndex * gw;
+    Point2D p1 = new Point2D.Double(x, y);
+    Point2D p2 = Util.roundToGrid(p1, 0.000001);
+    return p2;
   }
 
   public static double findGridIndex(double pos, double w) {
     return Math.floor(pos / w);
   }
 
-  public static boolean pointOutside(Point2D p, double margin, double gridWidth) {
+  public static boolean oldPointOutside(Point2D p, double margin, double gridWidth) {
     double x = p.getX();
     double y = p.getY();
     return (x < gridWidth / 2 || x > 1 - margin - (gridWidth / 2) || y < gridWidth / 2
         || y > 1 - margin - (gridWidth / 2));
   }
+
+
+  /*  Does this work? The point can be a shrinked box and then it is not the center of the box.
+      TODO: make more general with gridwidth instead of robotWidth so it can be used for moving obstacles as well
+  */
+  public static boolean pointOutside(Point2D p, double robotWidth) {
+    Rectangle2D box = new Rectangle2D.Double(p.getX() - (robotWidth / 2), p.getY() - (robotWidth / 2), robotWidth,
+        robotWidth);
+    Rectangle2D border = Util.grow(new Rectangle2D.Double(0, 0, 1, 1), -MAX_ERROR);
+    return !border.contains(box);
+  }
+
 
   public static List<Rectangle2D> fittedRects(List<Rectangle2D> originalRects, double gw, double margin) {
     List<Rectangle2D> fittedRects = new ArrayList<>();
@@ -101,4 +124,36 @@ public class Util {
     return fittedRect;
   }
 
+
+  public static Point2D roundToGrid(Point2D p, double gridWidth) {
+    double roundedX = roundToStepSize(p.getX(), gridWidth);
+    double roundedY = roundToStepSize(p.getY(), gridWidth);
+    return new Point2D.Double(roundedX, roundedY);
+  }
+
+  public static double roundToStepSize(double d, double stepSize) {
+    double factor = 1 / stepSize;
+    return Math.round(d * factor) / factor;
+  }
+
+  public static int isInList(List<Rectangle2D> list, Point2D p, int currentIndex) {
+    for (int i = 0; i < list.size(); i++) {
+      if (i != currentIndex) {
+        if (list.get(i).contains(p.getX(), p.getY())) {
+          return i;
+
+        }
+      }
+    }
+    return -1;
+  }
+
+  public static int isInList(List<Rectangle2D> list, Point2D p) {
+    for (int i = 0; i < list.size(); i++) {
+      if (list.get(i).contains(p.getX(), p.getY())) {
+        return i;
+      }
+    }
+    return -1;
+  }
 }

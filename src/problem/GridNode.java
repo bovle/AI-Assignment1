@@ -40,7 +40,10 @@ public class GridNode implements Comparable<GridNode> {
      * it's a moving obstacle
      */
     this.gridInfo = gridInfo;
-    this.gCost = parent.gCost + gridWidth;
+    if (parent == null)
+      this.gCost = 0;
+    else
+      this.gCost = parent.gCost + gridWidth;
     if (this.gridInfo.type == GridType.MOV_OBS || this.gridInfo.type == GridType.MOV_BOX_START
         || this.gridInfo.type == GridType.MOV_BOX_GOAL) {
       this.gCost += 1000;
@@ -61,7 +64,8 @@ public class GridNode implements Comparable<GridNode> {
         new Point2D.Double(currentX - gridWidth, currentY), };
 
     for (int i = 0; i < 4; i++) {
-      this.neighbours[i] = new Neighbour(points[i], (planner.isObstacle(points[i], listIndex, boxIndex)));
+      this.neighbours[i] = new Neighbour(Util.roundToGrid(points[i], 0.000001),
+          (planner.isObstacle(points[i], listIndex, boxIndex)));
     }
   }
 

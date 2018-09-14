@@ -39,14 +39,19 @@ public class MovingObstaclePlanner implements PathPlanner {
     for (int i = 0; i < numMovingObs; i++) {
       listIndexes[i] = 1;
     }
+
+    this.obstacles = new ArrayList<>();
+    for (int i = 0; i < numMovingObs; i++) {
+      this.obstacles.add(new Obstacles(boxPlanner, i, this.boxPaths));
+    }
   }
 
   public List<List<Point2D>> planAllPaths() {
-    List<BoxPath> allPaths = new ArrayList<>();
+    List<List<GridNode>> allPaths = new ArrayList<>();
 
-    for (int i = 0; i < numMovingObs; i++) {
-      int listIndex = listIndexes[i];
-      BoxPath path = findBoxPath(listIndex, i);
+    for (int boxIndex = 0; boxIndex < numMovingObs; boxIndex++) {
+      int listIndex = listIndexes[boxIndex];
+      List<GridNode> path = findBoxPath(listIndex, boxIndex);
 
       if (path == null) {
         return null;
@@ -57,16 +62,14 @@ public class MovingObstaclePlanner implements PathPlanner {
 
   }
 
-  private List<List<Point2D>> getResultPaths(List<BoxPath> allPaths) {
+  private List<List<Point2D>> getResultPaths(List<List<GridNode>> allPaths) {
     List<List<Point2D>> result = new ArrayList<>();
     for (int i = 0; i < numMovingObs; i++) { // ordering.length
-      BoxPath path = allPaths.get(i); //ordering[i]
+      List<GridNode> path = allPaths.get(i); //ordering[i]
       List<Point2D> pointPath = new ArrayList<>();
-      pointPath.addAll(path.startPath);
-      for (GridNode g : path.gridPath) {
+      for (GridNode g : path) {
         pointPath.add(g.pos);
       }
-      pointPath.addAll(path.endPath);
       result.add(pointPath);
     }
     return result;
@@ -74,14 +77,12 @@ public class MovingObstaclePlanner implements PathPlanner {
 
 
 
-  private BoxPath findBoxPath(int listIndex, int boxIndex) {
+  private List<GridNode> findBoxPath(int listIndex, int boxIndex) {
     System.out.println("*** Finding path for moving obstacle: " + boxIndex + " ***");
-
     double ow = obstacleWidths[boxIndex];
-
     boolean pathFound = false;
     double scalingFactor = Math.pow(2, listIndex - 1);
-    BoxPath path = null;
+    List<GridNode> path = null;
 
     while (!pathFound && listIndex < 5) {
 
@@ -94,7 +95,11 @@ public class MovingObstaclePlanner implements PathPlanner {
         double offset = (scalingFactor - 1) * ow / (scalingFactor * 2);
         Util.normalize(path, offset);
         //atGoal[boxIndex] = 1;
-        // TODO: update obstacle to be at goal posiiton instead?
+        // update obstacle to be at goal position instead?
+        Point2D goalPos = path.get(path.size()-1).pos;
+        for (int i = boxIndex; i < numMovingObs; i++) {
+          this.obstacles.get(i).updateObstacle(goalPos);
+        }
         listIndexes[boxIndex] = listIndex;
       } else {
         listIndex++;
@@ -110,106 +115,93 @@ public class MovingObstaclePlanner implements PathPlanner {
 
 
 
-  public BoxPath findBoxPathAux(double ow, double scalingFactor, int listIndex, int boxIndex) {
+  public List<GridNode> findBoxPathAux(double ow, double scalingFactor, int listIndex, int boxIndex) {
     double gw = ow / scalingFactor;
     double offset = (scalingFactor - 1) * gw / 2;
-    List<Point2D> startPath = new ArrayList<>();
-    List<Point2D> endPath = new ArrayList<>();
+    List<GridNode> startPath = new ArrayList<>();
+    List<GridNode> endPath = new ArrayList<>();
 
     double originalStartX = problemSpec.getMovingObstacles().get(boxIndex).getRect().getCenterX();
     double originalStartY = problemSpec.getMovingObstacles().get(boxIndex).getRect().getCenterY();
 
     Point2D shrinkedStart = new Point2D.Double(originalStartX - offset, originalStartY - offset);
+    shrinkedStart = Util.roundToGrid(shrinkedStart, 0.000001);
+    GridNode shrinkedStartNode = new GridNode(this, 0, shrinkedStart, gw, listIndex, boxIndex);
 
-
-    startPath = pointToGridCenter(shrinkedStart, gw, listIndex, boxIndex);
+    startPath = pointToGridCenter(shrinkedStartNode, gw, listIndex, boxIndex);
     if (startPath == null) {
       return null;
     }
 
-    Point2D centeredStart = startPath.get(startPath.size() - 1); // get last element in list
+
+    Point2D centeredStart = startPath.get(startPath.size() - 1).pos; // get last element in list
 
     BFS agent = new BFS();
     /* TODO: figure out how BFS works */
     // List<Point2D> boxPath
-    List<GridNode> path = (List<GridNode>) agent.Solve(this, centeredStart, ow, listIndex, boxIndex, boxPath);
-    if (path == null)
+    List<GridNode> midPath = (List<GridNode>) agent.Solve(this, centeredStart, ow, listIndex, boxIndex);
+
+    if (midPath == null)
       return null;
 
-    return new BoxPath(path, startPath, null); //no end path
+    List<GridNode> path = new ArrayList<>();
+    path.addAll(startPath);
+    path.addAll(midPath);
+
+    return path; //no end path
   }
 
   public GridInfo isObstacle(Point2D p, int listIndex, int boxIndex) {
     return this.obstacles.get(boxIndex).isObstacle(p, listIndex, boxIndex);
   }
 
-  private List<Point2D> pointToGridCenter(Point2D point, double gw, int listIndex, int boxIndex) {
-    double x = point.getX();
-    double y = point.getY();
+  private List<GridNode> pointToGridCenter(GridNode startPoint, double gw, int listIndex, int boxIndex) {
+    double x = startPoint.pos.getX();
+    double y = startPoint.pos.getY();
     List<Point2D> corners = new ArrayList<>();
     corners.add(new Point2D.Double(x - gw / 2, y + gw / 2)); // topLeft
     corners.add(new Point2D.Double(x + gw / 2, y + gw / 2)); // topRight
     corners.add(new Point2D.Double(x - gw / 2, y - gw / 2)); // bottomLeft
     corners.add(new Point2D.Double(x + gw / 2, y - gw / 2)); // bottomRight
 
-    List<Point2D> gridCenters = new ArrayList<>();
+    List<GridNode> gridCenters = new ArrayList<>();
     Point2D currentCenter;
-    int notFreeCount = 0;
+    int statObstacleCount = 0;
     for (Point2D p : corners) {
       currentCenter = Util.getGridCenter(p, gw);
-      if (GridType.FREE == isObstacle(currentCenter, listIndex, boxIndex).type) { // need to handle start/goal and
-                                                                                  // movable obstacles here
-        gridCenters.add(currentCenter);
+      GridInfo gridInfo = isObstacle(currentCenter, listIndex, boxIndex);
+      if (gridInfo.type != GridType.STAT_OBS) {
+        gridCenters.add(new GridNode(this, null, gridInfo, 0, currentCenter, gw, listIndex, boxIndex));
       } else {
         gridCenters.add(null);
-        notFreeCount++;
+        statObstacleCount++;
       }
     }
-    if (notFreeCount == 4) {
+    if (statObstacleCount == 5) {
+      System.out.println("no free space");
       return null;
     }
 
     // TODO: better way to choose a "random" gridcenter
-    Point2D startInGrid;
-    for (Point2D p : gridCenters) {
+    GridNode startInGrid = null;
+    for (GridNode p : gridCenters) {
       if (p != null) {
         startInGrid = p;
         break;
       }
     }
-
-    // sometimes the middlePoint is the same as one of the others
-    Point2D middlePoint = new Point2D.Double(x, startInGrid.getY());
-    List<Point2D> path = new ArrayList<>();
-    path.add(point);
-    if (!Util.equalPositions(point, middlePoint)) {
-      path.add(middlePoint);
+    Point2D middlePoint = new Point2D.Double(x, startInGrid.pos.getY());
+    List<GridNode> path = new ArrayList<>();
+    path.add(startPoint);
+    if (!Util.equalPositions(startPoint.pos, middlePoint)) {
+      GridInfo middlePointInfo = isObstacle(middlePoint, listIndex, boxIndex);
+      path.add(new GridNode(this, null, middlePointInfo, 0, middlePoint, gw, listIndex, boxIndex));
     }
-    path.add(startInGrid);
+    if (!Util.equalPositions(startInGrid.pos, middlePoint)) {
+      path.add(startInGrid);
+    }
     return path;
   }
-
-/*
-  private List<Integer> obstaclesInPath(List<Point2D> path, Integer listIndex, Integer boxIndex) {
-     List<Integer> obstacleIndex = new ArrayList<>();
-     for (Point2D p : path) {
-       if (GridType.MOV_OBS == boxPlanner.isObstacle(p, listIndex, boxIndex)) {
-         obstacleIndex.add(getMovObsIndex(p, listIndex));
-       }
-     }
-     return obstacleIndex;
- }
-
-   private Integer getMovObsIndex(Point2D p, Integer listIndex) {
-     for (int i = 0; i < numMovingObstacles; i++) {
-       Rectangle2D currentObstacle = boxPlanner.movingObstacles.get(listIndex).get(i);
-       if (currentObstacle.contains(p)) {
-         return i;
-       }
-     }
-     return -1; // something wrong
-   }
-   */
 
 
    private List<List<Rectangle2D>> pointPathsToRectanglePaths(List<List<Point2D>> boxPaths) {

@@ -11,8 +11,7 @@ public class BFS {
     Queue<GridNode> queue = new LinkedList<>();
     List<GridNode> visited = new LinkedList<>();
 
-    public List<GridNode> Solve(MovingBoxPlanner planner, Point2D start, double gridWidth, int listIndex, int boxIndex,
-            List<Point2D> boxPath) {
+    public List<GridNode> Solve(PathPlanner planner, Point2D start, double gridWidth, int listIndex, int boxIndex) {
         queue.clear();
         visited.clear();
         queue.add(new GridNode(planner, 0, start, gridWidth, listIndex, boxIndex));
@@ -20,7 +19,8 @@ public class BFS {
         while (!queue.isEmpty()) {
             GridNode currentState = queue.poll();
             visited.add(currentState);
-            if (isFree(currentState.pos, 0, boxPath, 0)) {
+
+            if (isValidGoal(planner, currentState.pos, listIndex, boxIndex)) {
                 LinkedList<GridNode> path = new LinkedList<>();
                 path.add(currentState);
                 while (currentState.parent != null) {
@@ -30,7 +30,7 @@ public class BFS {
                 return path;
             } else {
                 for (Neighbour n : currentState.neighbours) {
-                    if (!n.isInList(visited)) {
+                    if (!n.isInList(visited) && isValidGrid(n.gridInfo)) {
                         GridNode newNeighbour = new GridNode(planner, currentState, n.gridInfo, 0, n.pos, gridWidth,
                                 listIndex, boxIndex);
                         queue.add(newNeighbour);
@@ -42,6 +42,15 @@ public class BFS {
         return null;
     }
 
+    public boolean isValidGoal(PathPlanner planner, Point2D p, int listIndex, int obstacleIndex) {
+      return GridType.FREE == planner.isObstacle(p, listIndex, obstacleIndex).type;
+    }
+
+    public boolean isValidGrid(GridInfo gridInfo) {
+      GridType type = gridInfo.type;
+      return !(type == GridType.STAT_OBS || type == GridType.MOV_BOX_START || type == GridType.MOV_OBS);
+    }
+/*
     public boolean isFree(Point2D obstaclePos, double obstacleWidth, List<Point2D> boxPath, double boxWidth) {
         Rectangle2D obstacle = new Rectangle2D.Double(obstaclePos.getX() - (obstacleWidth / 2),
                 obstaclePos.getY() - (obstacleWidth / 2), obstacleWidth, obstacleWidth);
@@ -53,5 +62,5 @@ public class BFS {
         }
         return true;
     }
-
+*/
 }
