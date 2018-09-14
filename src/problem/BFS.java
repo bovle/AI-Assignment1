@@ -31,7 +31,7 @@ public class BFS {
             } else {
                 for (Neighbour n : currentState.neighbours) {
                     if (!n.isInList(visited)) {
-                        GridNode newNeighbour = new GridNode(planner, currentState, n.type, 0, n.pos, gridWidth,
+                        GridNode newNeighbour = new GridNode(planner, currentState, n.gridInfo, 0, n.pos, gridWidth,
                                 listIndex, boxIndex);
                         queue.add(newNeighbour);
                     }

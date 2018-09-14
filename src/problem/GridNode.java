@@ -16,7 +16,7 @@ public class GridNode implements Comparable<GridNode> {
   /**
    * Creates a root gridNode, the starting node
    */
-  public GridNode(MovingBoxPlanner planner, double hCost, Point2D pos, double gridWidth, int listIndex, int boxIndex) {
+  public GridNode(PathPlanner planner, double hCost, Point2D pos, double gridWidth, int listIndex, int boxIndex) {
     this.parent = null;
     this.gridInfo = new GridInfo(GridType.FREE, -1); /* assuming we don't start on a obstacle */
     this.gCost = 0;
@@ -31,7 +31,7 @@ public class GridNode implements Comparable<GridNode> {
   /**
    * Creates a non-root gridNode,
    */
-  public GridNode(MovingBoxPlanner planner, GridNode parent, GridInfo gridInfo, double hCost, Point2D pos,
+  public GridNode(PathPlanner planner, GridNode parent, GridInfo gridInfo, double hCost, Point2D pos,
       double gridWidth, int listIndex, int boxIndex) {
     this.parent = parent;
     /*
@@ -53,7 +53,7 @@ public class GridNode implements Comparable<GridNode> {
     this.setNeighbours(planner, gridWidth, listIndex, boxIndex);
   }
 
-  private void setNeighbours(MovingBoxPlanner planner, double gridWidth, int listIndex, int boxIndex) {
+  private void setNeighbours(PathPlanner planner, double gridWidth, int listIndex, int boxIndex) {
     double currentX = this.pos.getX();
     double currentY = this.pos.getY();
     Point2D[] points = { new Point2D.Double(currentX, currentY + gridWidth),

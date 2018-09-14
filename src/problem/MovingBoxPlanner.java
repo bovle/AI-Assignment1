@@ -12,7 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.lang.*;
 
-public class MovingBoxPlanner {
+public class MovingBoxPlanner implements PathPlanner {
   private ProblemSpec problemSpec;
   // private List<Point2D> currentStaticObstacles;
   private List<List<Rectangle2D>> staticObstacles;
@@ -80,13 +80,21 @@ public class MovingBoxPlanner {
       listIndexes[i] = 1;
     }
 
-    this.totalOrdering = new ArrayList<>();
-
     // temporaryObstacles
     this.temporaryObstacles = new ArrayList<>();
 
     this.numExtensions = 0;
 
+  }
+
+  public List<List<Rectangle2D>> getMovingObstacles() {
+    return this.movingObstacles;
+  }
+  public List<List<Rectangle2D>> getStaticObstacles() {
+    return this.staticObstacles;
+  }
+  public List<List<Rectangle2D>> getBoxesStart() {
+    return this.boxesStart;
   }
 
   // p1 and p2 are the end points of the robot line
@@ -221,7 +229,7 @@ public class MovingBoxPlanner {
     }
     return result;
   }
-
+  /* in util */
   private void normalize(BoxPath path, double offset) {
     for (Point2D p : path.startPath) {
       p.setLocation(p.getX() + offset, p.getY() + offset);
@@ -362,7 +370,7 @@ public class MovingBoxPlanner {
     }
     return path;
   }
-
+  /* in Util */
   private Point2D getGridCenter(Point2D p, double gw) {
     double xIndex = findGridIndex(p.getX(), gw);
     double yIndex = findGridIndex(p.getY(), gw);
@@ -384,6 +392,7 @@ public class MovingBoxPlanner {
     numExtensions++;
   }
 
+  /* in util */
   private List<Rectangle2D> fittedRects(List<Rectangle2D> originalRects, double gw, double margin) {
     List<Rectangle2D> fittedRects = new ArrayList<>();
     for (Rectangle2D original : originalRects) {
@@ -393,6 +402,7 @@ public class MovingBoxPlanner {
     return fittedRects;
   }
 
+ /* In util */
   private Rectangle2D fitToGrid(Rectangle2D original, double gw, double margin) {
     // first: resize eveything
     double newX = original.getX() - margin; // todo: should it also be -w/2?
@@ -438,11 +448,12 @@ public class MovingBoxPlanner {
     // todo: make a much smaller rectangular obstacle
     return tempObstacle;
   }
-
+  /* In util */
   private double findGridIndex(double pos, double w) {
     return Math.floor(pos / w);
   }
 
+  /* In util */
   private boolean pointOutside(Point2D p, double margin, double gridWidth) {
     double x = p.getX();
     double y = p.getY();
