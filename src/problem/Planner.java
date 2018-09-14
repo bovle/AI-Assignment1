@@ -49,8 +49,9 @@ public class Planner {
         RobotConfig currentConfig = ps.getInitialRobotConfig();
         for (int i = 0; i < boxPaths.size(); i++) {
             List<Point2D> path = boxPaths.get(i);
+            // System.out.println(" *** " + i + " *** ");
+            // path.forEach(p -> System.out.println(p));
             int boxIndex = indexList.get(i);
-
             Rectangle2D movingRect = obstacles.remove(boxIndex);
 
             RobotConfig failConfig = calcPaths(currentConfig, boxIndex, path, obstacles);
@@ -176,13 +177,14 @@ public class Planner {
         double x = boxPos.getX() - (Math.cos(movementDirection) * ((ps.getRobotWidth() / 2) + 0.00005));
         double y = boxPos.getY() - (Math.sin(movementDirection) * ((ps.getRobotWidth() / 2) + 0.00005));
         double direction = movementDirection - (Math.PI / 2);
-        return new RobotConfig(new double[] { x, y }, direction);
+        return new RobotConfig(new double[] { Util.roundToStepSize(x, 0.000001), Util.roundToStepSize(y, 0.000001) },
+                direction);
     }
 
     private Point2D boxPosFromRobotConfig(RobotConfig config, double movementDirection) {
         double x = config.getPos().getX() + (Math.cos(movementDirection) * ((ps.getRobotWidth() / 2) + 0.00005));
         double y = config.getPos().getY() + (Math.sin(movementDirection) * ((ps.getRobotWidth() / 2) + 0.00005));
-        return new Point2D.Double(x, y);
+        return new Point2D.Double(Util.roundToStepSize(x, 0.000001), Util.roundToStepSize(y, 0.000001));
     }
 
     private void extendBoxPaths(List<List<Point2D>> boxPaths) {

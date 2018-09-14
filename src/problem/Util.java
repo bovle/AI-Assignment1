@@ -40,4 +40,15 @@ public class Util {
     return new Rectangle2D.Double(rect.getX() - delta, rect.getY() - delta, rect.getWidth() + 2 * delta,
         rect.getHeight() + 2 * delta);
   }
+
+  public static Point2D roundToGrid(Point2D p, double gridWidth) {
+    double roundedX = roundToStepSize(p.getX(), gridWidth);
+    double roundedY = roundToStepSize(p.getY(), gridWidth);
+    return new Point2D.Double(roundedX, roundedY);
+  }
+
+  public static double roundToStepSize(double d, double stepSize) {
+    double factor = 1 / stepSize;
+    return Math.round(d * factor) / factor;
+  }
 }
