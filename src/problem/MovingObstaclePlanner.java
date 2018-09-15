@@ -85,7 +85,7 @@ public class MovingObstaclePlanner implements PathPlanner {
     while (!pathFound && listIndex < 5) {
 
       if (listIndex > obstacles.get(boxIndex).numExtensions) {
-        obstacles.get(boxIndex).extendObstacles(ow, scalingFactor);
+        obstacles.get(boxIndex).extendObstacles(scalingFactor);
       }
       path = findBoxPathAux(ow, scalingFactor, listIndex, boxIndex);
       if (path != null) {

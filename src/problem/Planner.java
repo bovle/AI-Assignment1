@@ -45,6 +45,10 @@ public class Planner {
             System.err.println("no solution");
             return;
         }
+
+        for(Point2D p : boxPaths.get(1)) {
+          System.out.println("Boxpath: " + p);
+        }
         List<Integer> indexList = boxPlanner.getIndexList();
 
         MovingObstaclePlanner mop = new MovingObstaclePlanner(ps, boxPlanner, boxPaths);
