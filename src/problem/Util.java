@@ -59,8 +59,8 @@ public class Util {
   }
 
   public static Point2D getGridCenter(Point2D p, double gw) {
-    double xIndex = findGridIndex(p.getX() + (gw / 2), gw);
-    double yIndex = findGridIndex(p.getY() + (gw / 2), gw);
+    double xIndex = findGridIndex(p.getX(), gw);
+    double yIndex = findGridIndex(p.getY(), gw);
     double x = /* gw / 2 + */ xIndex * gw;
     double y = /* gw / 2 + */ yIndex * gw;
     Point2D p1 = new Point2D.Double(x, y);
@@ -69,7 +69,7 @@ public class Util {
   }
 
   public static double findGridIndex(double pos, double w) {
-    return Math.floor(pos / w);
+    return Math.floor((pos + (w / 2)) / w);
   }
 
   /*
@@ -80,7 +80,6 @@ public class Util {
   public static boolean pointOutside(Point2D p, double bw, double offset) {
     Rectangle2D box = new Rectangle2D.Double(p.getX() + offset - (bw / 2), p.getY() + offset - (bw / 2), bw, bw);
     Rectangle2D border = new Rectangle2D.Double(0, 0, 1, 1);
-    // border = Util.grow(border, -MAX_ERROR);
     border = Util.grow(border, MAX_ERROR);
     return !border.contains(box);
   }
