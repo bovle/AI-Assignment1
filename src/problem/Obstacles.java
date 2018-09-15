@@ -32,7 +32,7 @@ public class Obstacles {
     this.boxesStart.add(boxPlanner.getBoxesStart());
 
     List<Rectangle2D> allPaths = new ArrayList<>();
-    for (List<Rectangle2D> path : boxPaths) {
+    for (List<Rectangle2D> path : bP) {
       allPaths.addAll(path);
     }
     this.boxPaths.add(allPaths);
@@ -42,7 +42,7 @@ public class Obstacles {
   }
 
   public void updateObstacle(Point2D p) {
-    Rectangle2D newObstacle = Util.pointToRect(p, ow+2*MAX_ERROR);
+    Rectangle2D newObstacle = Util.pointToRect(p, ow + 2 * MAX_ERROR);
     this.movingObstacles.get(0).remove(obstacleIndex);
     this.movingObstacles.get(0).add(obstacleIndex, newObstacle);
   }
