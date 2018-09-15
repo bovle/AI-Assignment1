@@ -24,6 +24,7 @@ public class Astar {
     open.add(new GridNode(planner, hCost, start, gridWidth, listIndex, boxIndex));
 
     while (open.size() > 0) {
+
       GridNode currentNode = (GridNode) open.poll();
 
       // if goal found

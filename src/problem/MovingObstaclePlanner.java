@@ -16,13 +16,13 @@ public class MovingObstaclePlanner implements PathPlanner {
   private ProblemSpec problemSpec;
   private MovingBoxPlanner boxPlanner;
   // every list represent the obstacles for a specific moving obstacle.
-  // because the obstalces have different width and hence all the other obstacles will have different sizes
+  // because the obstalces have different width and hence all the other obstacles
+  // will have different sizes
   private List<Obstacles> obstacles;
   private List<List<Rectangle2D>> boxPaths;
   private Double[] obstacleWidths;
   private Integer numMovingObs;
   private Integer[] listIndexes;
-
 
   public MovingObstaclePlanner(ProblemSpec ps, MovingBoxPlanner boxPlanner, List<List<Point2D>> boxPaths) {
     this.problemSpec = ps;
@@ -65,7 +65,7 @@ public class MovingObstaclePlanner implements PathPlanner {
   private List<List<Point2D>> getResultPaths(List<List<GridNode>> allPaths) {
     List<List<Point2D>> result = new ArrayList<>();
     for (int i = 0; i < numMovingObs; i++) { // ordering.length
-      List<GridNode> path = allPaths.get(i); //ordering[i]
+      List<GridNode> path = allPaths.get(i); // ordering[i]
       List<Point2D> pointPath = new ArrayList<>();
       for (GridNode g : path) {
         pointPath.add(g.pos);
@@ -74,8 +74,6 @@ public class MovingObstaclePlanner implements PathPlanner {
     }
     return result;
   }
-
-
 
   private List<GridNode> findBoxPath(int listIndex, int boxIndex) {
     System.out.println("*** Finding path for moving obstacle: " + boxIndex + " ***");
@@ -94,9 +92,9 @@ public class MovingObstaclePlanner implements PathPlanner {
         pathFound = true;
         double offset = (scalingFactor - 1) * ow / (scalingFactor * 2);
         Util.normalize(path, offset);
-        //atGoal[boxIndex] = 1;
+        // atGoal[boxIndex] = 1;
         // update obstacle to be at goal position instead?
-        Point2D goalPos = path.get(path.size()-1).pos;
+        Point2D goalPos = path.get(path.size() - 1).pos;
         for (int i = boxIndex; i < numMovingObs; i++) {
           this.obstacles.get(i).updateObstacle(goalPos);
         }
@@ -112,8 +110,6 @@ public class MovingObstaclePlanner implements PathPlanner {
     }
     return path;
   }
-
-
 
   public List<GridNode> findBoxPathAux(double ow, double scalingFactor, int listIndex, int boxIndex) {
     double gw = ow / scalingFactor;
@@ -133,22 +129,23 @@ public class MovingObstaclePlanner implements PathPlanner {
       return null;
     }
 
-
     Point2D centeredStart = startPath.get(startPath.size() - 1).pos; // get last element in list
 
     BFS agent = new BFS();
     /* TODO: figure out how BFS works */
     // List<Point2D> boxPath
-    List<GridNode> midPath = (List<GridNode>) agent.Solve(this, centeredStart, ow, listIndex, boxIndex);
+    List<GridNode> midPath = (List<GridNode>) agent.Solve(this, centeredStart, gw, listIndex, boxIndex);
 
     if (midPath == null)
       return null;
+
+    midPath.remove(0);
 
     List<GridNode> path = new ArrayList<>();
     path.addAll(startPath);
     path.addAll(midPath);
 
-    return path; //no end path
+    return path; // no end path
   }
 
   public GridInfo isObstacle(Point2D p, int listIndex, int boxIndex) {
@@ -163,6 +160,7 @@ public class MovingObstaclePlanner implements PathPlanner {
     corners.add(new Point2D.Double(x + gw / 2, y + gw / 2)); // topRight
     corners.add(new Point2D.Double(x - gw / 2, y - gw / 2)); // bottomLeft
     corners.add(new Point2D.Double(x + gw / 2, y - gw / 2)); // bottomRight
+    corners.add(startPoint.pos); // center
 
     List<GridNode> gridCenters = new ArrayList<>();
     Point2D currentCenter;
@@ -203,19 +201,18 @@ public class MovingObstaclePlanner implements PathPlanner {
     return path;
   }
 
-
-   private List<List<Rectangle2D>> pointPathsToRectanglePaths(List<List<Point2D>> boxPaths) {
+  private List<List<Rectangle2D>> pointPathsToRectanglePaths(List<List<Point2D>> boxPaths) {
     List<List<Rectangle2D>> allPaths = new ArrayList<>();
     double ow = problemSpec.getRobotWidth();
 
     for (List<Point2D> path : boxPaths) {
       List<Rectangle2D> rectanglePath = new ArrayList<>();
       for (Point2D p : path) {
-         Rectangle2D currentRect = Util.pointToRect(p, ow);
-         rectanglePath.add(currentRect);
-       }
+        Rectangle2D currentRect = Util.pointToRect(p, ow);
+        rectanglePath.add(currentRect);
+      }
       allPaths.add(rectanglePath);
     }
     return allPaths;
-   }
+  }
 }

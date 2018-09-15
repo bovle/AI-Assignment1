@@ -46,6 +46,16 @@ public class Planner {
             return;
         }
         List<Integer> indexList = boxPlanner.getIndexList();
+
+        MovingObstaclePlanner mop = new MovingObstaclePlanner(ps, boxPlanner, boxPaths);
+        List<List<Point2D>> obstaclePaths = mop.planAllPaths();
+        for (int i = 0; i < obstaclePaths.size(); i++) {
+            List<Point2D> obstaclePath = obstaclePaths.get(i);
+            return;
+            // System.out.println(" *** " + i + " *** ");
+            // obstaclePath.forEach(p -> System.out.println(p));
+        }
+
         RobotConfig currentConfig = ps.getInitialRobotConfig();
         for (int i = 0; i < boxPaths.size(); i++) {
             List<Point2D> path = boxPaths.get(i);
