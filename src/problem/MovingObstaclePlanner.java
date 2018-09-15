@@ -123,7 +123,7 @@ public class MovingObstaclePlanner implements PathPlanner {
     Point2D shrinkedStart = new Point2D.Double(originalStartX - offset, originalStartY - offset);
     shrinkedStart = Util.roundToGrid(shrinkedStart, 0.000001);
     GridNode shrinkedStartNode = new GridNode(this, 0, shrinkedStart, gw, listIndex, boxIndex);
-    if (GridType.FREE == shrinkedStartNode.gridInfo.type) {
+    if (GridType.FREE == shrinkedStartNode.gridInfo.type) { // dont care about mov obs at borders
       startPath.add(shrinkedStartNode);
       return startPath;
     }
@@ -183,13 +183,8 @@ public class MovingObstaclePlanner implements PathPlanner {
     }
 
     // TODO: better way to choose a "random" gridcenter
-    GridNode startInGrid = null;
-    for (GridNode p : gridCenters) {
-      if (p != null) {
-        startInGrid = p;
-        break;
-      }
-    }
+    GridNode startInGrid = closestPoint(gridCenters, startPoint.pos);
+
     Point2D middlePoint = new Point2D.Double(x, startInGrid.pos.getY());
     List<GridNode> path = new ArrayList<>();
     path.add(startPoint);
@@ -201,6 +196,24 @@ public class MovingObstaclePlanner implements PathPlanner {
       path.add(startInGrid);
     }
     return path;
+  }
+
+  private GridNode closestPoint(List<GridNode> list, Point2D p) {
+    double shortestDist = Double.MAX_VALUE;
+    double currentDist;
+    GridNode closestPoint = null;
+    for (GridNode elem : list) {
+      if (elem != null) {
+        currentDist = Util.manhattanDist(elem.pos, p);
+        if (elem.gridInfo.type != GridType.FREE || elem.gridInfo.type != GridType.MOV_BOX_PATH)
+          currentDist += 1000;
+        if (currentDist < shortestDist) {
+          shortestDist = currentDist;
+          closestPoint = elem;
+        }
+      }
+    }
+    return closestPoint;
   }
 
   private List<List<Rectangle2D>> pointPathsToRectanglePaths(List<List<Point2D>> boxPaths) {
