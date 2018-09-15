@@ -107,7 +107,8 @@ public class Util {
     double topIndex = findGridIndex(newY + newHeigth, gw) + 1;
     double fittedWidth = (rightIndex - leftIndex) * gw;
     double fittedHeight = (topIndex - bottomIndex) * gw;
-    Rectangle2D fittedRect = new Rectangle2D.Double(leftIndex * gw, bottomIndex * gw, fittedWidth, fittedHeight);
+    Rectangle2D fittedRect = new Rectangle2D.Double(leftIndex * gw - (gw / 2), bottomIndex * gw - (gw / 2), fittedWidth,
+        fittedHeight);
     return fittedRect;
   }
 

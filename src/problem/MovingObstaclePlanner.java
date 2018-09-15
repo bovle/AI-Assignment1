@@ -170,7 +170,8 @@ public class MovingObstaclePlanner implements PathPlanner {
     for (Point2D p : corners) {
       currentCenter = Util.getGridCenter(p, gw);
       GridInfo gridInfo = isObstacle(currentCenter, listIndex, boxIndex);
-      if (gridInfo.type != GridType.STAT_OBS) {
+      if (gridInfo.type != GridType.STAT_OBS && gridInfo.type != GridType.MOV_OBS
+          && gridInfo.type != GridType.MOV_BOX_START) {
         gridCenters.add(new GridNode(this, null, gridInfo, 0, currentCenter, gw, listIndex, boxIndex));
       } else {
         gridCenters.add(null);
