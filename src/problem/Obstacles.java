@@ -42,7 +42,7 @@ public class Obstacles {
   }
 
   public void updateObstacle(Point2D p) {
-    Rectangle2D newObstacle = Util.pointToRect(p, ow + 2*MAX_ERROR);
+    Rectangle2D newObstacle = Util.pointToRect(p, ow+2*MAX_ERROR);
     this.movingObstacles.get(0).remove(obstacleIndex);
     this.movingObstacles.get(0).add(obstacleIndex, newObstacle);
   }
@@ -63,6 +63,7 @@ public class Obstacles {
     double offset = (scalingFactor - 1) * ow / (scalingFactor * 2);
 
     if (Util.pointOutside(p, ow, offset)) {
+      System.out.println("point outside: " + p.toString());
       return new GridInfo(GridType.STAT_OBS, -1);
     }
     int index;
@@ -80,6 +81,7 @@ public class Obstacles {
     }
 
     if ((index = Util.isInList(boxPaths.get(listIndex), p)) > -1) {
+      System.out.println("mov box path: " + p.toString());
       return new GridInfo(GridType.MOV_BOX_PATH, index);
     }
     return new GridInfo(GridType.FREE, -1);
