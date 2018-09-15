@@ -49,23 +49,21 @@ public class Planner {
 
         MovingObstaclePlanner mop = new MovingObstaclePlanner(ps, boxPlanner, boxPaths);
         List<List<Point2D>> obstaclePaths = mop.planAllPaths();
-        for (int i = 0; i < obstaclePaths.size(); i++) {
-            List<Point2D> obstaclePath = obstaclePaths.get(i);
-            //return;
-            System.out.println(" *** " + i + " *** ");
-            obstaclePath.forEach(p -> System.out.println(p));
+        if (obstaclePaths == null) {
+            System.err.println("no solution");
             return;
         }
 
         RobotConfig currentConfig = ps.getInitialRobotConfig();
-        for (int i = 0; i < boxPaths.size(); i++) {
-            List<Point2D> path = boxPaths.get(i);
+        for (int i = 0; i < obstaclePaths.size(); i++) {
+            List<Point2D> obstaclePath = obstaclePaths.get(i);
             // System.out.println(" *** " + i + " *** ");
-            // path.forEach(p -> System.out.println(p));
-            int boxIndex = indexList.get(i);
-            Rectangle2D movingRect = obstacles.remove(boxIndex);
+            // obstaclePath.forEach(p -> System.out.println(p));
 
-            RobotConfig failConfig = calcPaths(currentConfig, boxIndex, path, obstacles);
+            Rectangle2D movingRect = obstacles.remove(ps.getNumMovingBoxes() + i);
+
+            RobotConfig failConfig = calcPaths(currentConfig, ps.getNumMovingBoxes() + i, obstaclePath, obstacles,
+                    movingRect.getWidth());
             if (failConfig != null) {
                 System.out.println("failed at: " + failConfig.getPos() + " | " + failConfig.getOrientation());
                 movingBoxPaths.remove(0);
@@ -73,24 +71,26 @@ public class Planner {
                 System.err.println("no solution");
                 return;
             }
-            // while (failConfig != null) {
-            // System.out.println("failed at: " + failConfig.getPos() + " | " +
-            // failConfig.getOrientation());
-            // List<Point2D> newPath = boxPlanner.findNewPath(
-            // new Point2D.Double(failConfig.getX1(ps.getRobotWidth()),
-            // failConfig.getY1(ps.getRobotWidth())),
-            // new Point2D.Double(failConfig.getX2(ps.getRobotWidth()),
-            // failConfig.getY2(ps.getRobotWidth())),
-            // boxIndex);
-            // if (newPath == null) {
-            // // ### uncomment to test in visualizer ###
-            // movingBoxPaths.remove(0);
-            // outputPath(outputFile);
-            // System.err.println("no solution");
-            // return;
-            // }
-            // failConfig = calcPaths(currentConfig, boxIndex, newPath, obstacles);
-            // }
+            obstacles.add(ps.getNumMovingBoxes() + i,
+                    Util.pointToRect(obstaclePath.get(obstaclePath.size() - 1), movingRect.getWidth()));
+            currentConfig = robotPath.get(robotPath.size() - 1);
+        }
+
+        for (int i = 0; i < boxPaths.size(); i++) {
+            List<Point2D> path = boxPaths.get(i);
+            // System.out.println(" *** " + i + " *** ");
+            // path.forEach(p -> System.out.println(p));
+            int boxIndex = indexList.get(i);
+            Rectangle2D movingRect = obstacles.remove(boxIndex);
+
+            RobotConfig failConfig = calcPaths(currentConfig, boxIndex, path, obstacles, movingRect.getWidth());
+            if (failConfig != null) {
+                System.out.println("failed at: " + failConfig.getPos() + " | " + failConfig.getOrientation());
+                movingBoxPaths.remove(0);
+                outputPath(outputFile);
+                System.err.println("no solution");
+                return;
+            }
             obstacles.add(boxIndex, Util.pointToRect(path.get(path.size() - 1), movingRect.getWidth()));
             currentConfig = robotPath.get(robotPath.size() - 1);
         }
@@ -101,7 +101,7 @@ public class Planner {
     }
 
     private RobotConfig calcPaths(RobotConfig initConfig, int boxIndex, List<Point2D> boxPath,
-            List<Rectangle2D> staticObstacles) {
+            List<Rectangle2D> staticObstacles, double boxWidth) {
         List<DirectionalLine> lines = splitByDirection(boxPath);
         RobotConfig currentConfig = initConfig;
         double robotWidth = ps.getRobotWidth();
@@ -113,7 +113,7 @@ public class Planner {
         }
         for (int i = 0; i < lines.size(); i++) {
             DirectionalLine line = lines.get(i);
-            RobotConfig nextConfig = robotConfigFromBoxPos(line.startPosition, line.direction);
+            RobotConfig nextConfig = robotConfigFromBoxPos(line.startPosition, line.direction, boxWidth);
             List<Rectangle2D> obstacles = new ArrayList<>();
             obstacles.addAll(staticObstacles);
             obstacles.add(Util.pointToRect(line.startPosition, robotWidth));
@@ -130,9 +130,9 @@ public class Planner {
                 extendBoxPaths(tempMovingBoxPaths);
             }
             currentConfig = nextConfig;
-            nextConfig = robotConfigFromBoxPos(line.endPosition, line.direction);
+            nextConfig = robotConfigFromBoxPos(line.endPosition, line.direction, boxWidth);
             addDirectionalLineToPaths(tempRobotPath, tempMovingBoxPaths, boxIndex, line.direction, currentConfig,
-                    nextConfig);
+                    nextConfig, boxWidth);
             currentConfig = nextConfig;
         }
         robotPath.addAll(tempRobotPath);
@@ -144,7 +144,7 @@ public class Planner {
     }
 
     private void addDirectionalLineToPaths(List<RobotConfig> tempRobotPath, List<List<Point2D>> tempMovingBoxPaths,
-            int boxIndex, double movementDirection, RobotConfig startConfig, RobotConfig goalConfig) {
+            int boxIndex, double movementDirection, RobotConfig startConfig, RobotConfig goalConfig, double boxWidth) {
         double distance = startConfig.getPos().distance(goalConfig.getPos());
         int steps = (int) Math.floor(distance / 0.001);
         RobotConfig currentConfig = startConfig;
@@ -154,11 +154,11 @@ public class Planner {
             currentConfig = new RobotConfig(Util.translateOneStep(currentConfig.getPos(), movementDirection),
                     currentConfig.getOrientation());
             tempRobotPath.add(currentConfig);
-            extendBoxPaths(tempMovingBoxPaths, boxIndex, currentConfig, movementDirection);
+            extendBoxPaths(tempMovingBoxPaths, boxIndex, currentConfig, movementDirection, boxWidth);
         }
         if (!currentConfig.getPos().equals(goalConfig.getPos())) {
             tempRobotPath.add(goalConfig);
-            extendBoxPaths(tempMovingBoxPaths, boxIndex, goalConfig, movementDirection);
+            extendBoxPaths(tempMovingBoxPaths, boxIndex, goalConfig, movementDirection, boxWidth);
         }
     }
 
@@ -184,31 +184,31 @@ public class Planner {
         return lines;
     }
 
-    private RobotConfig robotConfigFromBoxPos(Point2D boxPos, double movementDirection) {
-        double x = boxPos.getX() - (Math.cos(movementDirection) * ((ps.getRobotWidth() / 2) + 0.00005));
-        double y = boxPos.getY() - (Math.sin(movementDirection) * ((ps.getRobotWidth() / 2) + 0.00005));
+    private RobotConfig robotConfigFromBoxPos(Point2D boxPos, double movementDirection, double boxWidth) {
+        double x = boxPos.getX() - (Math.cos(movementDirection) * ((boxWidth / 2) + 0.00005));
+        double y = boxPos.getY() - (Math.sin(movementDirection) * ((boxWidth / 2) + 0.00005));
         double direction = movementDirection - (Math.PI / 2);
         return new RobotConfig(new double[] { Util.roundToStepSize(x, 0.000001), Util.roundToStepSize(y, 0.000001) },
                 direction);
     }
 
-    private Point2D boxPosFromRobotConfig(RobotConfig config, double movementDirection) {
-        double x = config.getPos().getX() + (Math.cos(movementDirection) * ((ps.getRobotWidth() / 2) + 0.00005));
-        double y = config.getPos().getY() + (Math.sin(movementDirection) * ((ps.getRobotWidth() / 2) + 0.00005));
+    private Point2D boxPosFromRobotConfig(RobotConfig config, double movementDirection, double boxWidth) {
+        double x = config.getPos().getX() + (Math.cos(movementDirection) * ((boxWidth / 2) + 0.00005));
+        double y = config.getPos().getY() + (Math.sin(movementDirection) * ((boxWidth / 2) + 0.00005));
         return new Point2D.Double(Util.roundToStepSize(x, 0.000001), Util.roundToStepSize(y, 0.000001));
     }
 
     private void extendBoxPaths(List<List<Point2D>> boxPaths) {
-        extendBoxPaths(boxPaths, -1, null, 0);
+        extendBoxPaths(boxPaths, -1, null, 0, 0);
     };
 
     private void extendBoxPaths(List<List<Point2D>> boxPaths, int indexToMove, RobotConfig configToMatch,
-            double movementDirection) {
+            double movementDirection, double boxWidth) {
         boxPaths.add(new ArrayList<>());
         int stepnr = boxPaths.size() - 1;
         for (int i = 0; i < ps.getMovingBoxes().size() + ps.getMovingObstacles().size(); i++) {
             if (i == indexToMove) {
-                boxPaths.get(stepnr).add(boxPosFromRobotConfig(configToMatch, movementDirection));
+                boxPaths.get(stepnr).add(boxPosFromRobotConfig(configToMatch, movementDirection, boxWidth));
             } else {
                 boxPaths.get(stepnr).add(boxPaths.get(stepnr - 1).get(i));
             }

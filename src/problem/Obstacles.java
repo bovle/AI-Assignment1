@@ -12,7 +12,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.lang.*;
 
-
 public class Obstacles {
   private double ow;
   private Integer obstacleIndex;
@@ -27,12 +26,13 @@ public class Obstacles {
     this.movingObstacles = new ArrayList<>();
     this.boxesStart = new ArrayList<>();
     this.boxPaths = new ArrayList<>();
+
     this.staticObstacles.add(boxPlanner.getStaticObstacles());
     this.movingObstacles.add(boxPlanner.getMovingObstacles());
     this.boxesStart.add(boxPlanner.getBoxesStart());
 
     List<Rectangle2D> allPaths = new ArrayList<>();
-    for(List<Rectangle2D> path : bP) {
+    for (List<Rectangle2D> path : boxPaths) {
       allPaths.addAll(path);
     }
     this.boxPaths.add(allPaths);
@@ -40,7 +40,6 @@ public class Obstacles {
     this.ow = this.movingObstacles.get(0).get(obstacleIndex).getWidth();
     this.numExtensions = 0;
   }
-
 
   public void updateObstacle(Point2D p) {
     Rectangle2D newObstacle = Util.pointToRect(p, ow + 2*MAX_ERROR);
@@ -71,10 +70,12 @@ public class Obstacles {
       return new GridInfo(GridType.STAT_OBS, index);
     }
 
-    if ((index = Util.isInList(movingObstacles.get(listIndex), p, obstacleIndex)) > -1) { // added obstacleIndex to ignore itself
+    if ((index = Util.isInList(movingObstacles.get(listIndex), p, obstacleIndex)) > -1) { // added obstacleIndex to
+                                                                                          // ignore itself
       return new GridInfo(GridType.MOV_OBS, index);
     }
-    if ((index = Util.isInList(boxesStart.get(listIndex), p)) > -1) { // removed boxIndex to consider all start positions
+    if ((index = Util.isInList(boxesStart.get(listIndex), p)) > -1) { // removed boxIndex to consider all start
+                                                                      // positions
       return new GridInfo(GridType.MOV_BOX_START, index);
     }
 
