@@ -84,9 +84,6 @@ public class Obstacles {
       return new GridInfo(GridType.MOV_BOX_PATH, index);
     }
 
-    Point2D realPoint = new Point2D.Double(p.getX() + offset, p.getY()+offset);
-    System.out.println("Free point: " + realPoint);
-
     return new GridInfo(GridType.FREE, -1);
   }
 

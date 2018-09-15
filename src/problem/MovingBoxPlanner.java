@@ -92,13 +92,14 @@ public class MovingBoxPlanner implements PathPlanner {
   public List<Rectangle2D> getMovingObstacles() {
     return this.movingObstacles.get(0);
   }
+
   public List<Rectangle2D> getStaticObstacles() {
     return this.staticObstacles.get(0);
   }
+
   public List<Rectangle2D> getBoxesStart() {
     return this.boxesStart.get(0);
   }
-
 
   public List<List<Point2D>> findAllBoxPaths() {
     List<List<GridNode>> allPaths = new ArrayList<>();
@@ -140,27 +141,36 @@ public class MovingBoxPlanner implements PathPlanner {
   }
 
   private List<Integer> getOrder() {
-    orderObjects.sort(new Comparator<OrderObject>() {
-      public int compare(OrderObject a, OrderObject b) {
-        if (a.after.contains(b.index))
-          return -1;
-        if (a.before.contains(b.index))
-          return 1;
-        if (b.after.contains(a.index))
-          return 1;
-        if (b.after.contains(a.index))
-          return -1;
-        return 0;
-      }
-    });
-    List<Integer> result = new ArrayList<>();
-    for (OrderObject o : orderObjects) {
-      result.add(o.index);
+    LinkedList<Integer> resultOrder = new LinkedList<>();
+
+    for (int boxIndex = 0; boxIndex < orderObjects.size(); boxIndex++) {
+      resultOrder.add(boxIndex);
     }
-    return result;
+
+    for (int boxID = 0; boxID < orderObjects.size(); boxID++) {
+      int boxIndex = resultOrder.indexOf(boxID);
+      OrderObject currentObject = orderObjects.get(boxID);
+      int highestBeforeIndex = -1;
+      for (Integer beforeID : currentObject.before) {
+        int beforeIndex = resultOrder.indexOf(beforeID);
+        if (highestBeforeIndex < beforeIndex)
+          highestBeforeIndex = beforeIndex;
+      }
+      if (highestBeforeIndex > boxIndex) {
+        resultOrder.add(highestBeforeIndex + 1, boxID);
+        resultOrder.remove(boxIndex);
+        boxIndex = resultOrder.indexOf(boxID);
+      }
+      for (Integer afterID : currentObject.after) {
+        int afterIndex = resultOrder.indexOf(afterID);
+        if (afterIndex < boxIndex) {
+          resultOrder.add(boxIndex + 1, afterID);
+          resultOrder.remove(afterIndex);
+        }
+      }
+    }
+    return resultOrder;
   }
-
-
 
   private List<GridNode> findBoxPath(int listIndex, int boxIndex) {
     System.out.println("*** Finding path for box: " + boxIndex + " ***");
@@ -254,8 +264,8 @@ public class MovingBoxPlanner implements PathPlanner {
           System.out.println("start and goal pos in path");
           return null;
         }
-
-        currentBox.before.add(otherBoxIndex);
+        if (!currentBox.before.contains(otherBoxIndex))
+          currentBox.before.add(otherBoxIndex);
       }
       if (g.gridInfo.type == GridType.MOV_BOX_GOAL) {
         int otherBoxIndex = g.gridInfo.boxIndex;
@@ -263,7 +273,8 @@ public class MovingBoxPlanner implements PathPlanner {
           System.out.println("start and goal pos in path");
           return null;
         }
-        currentBox.after.add(otherBoxIndex);
+        if (!currentBox.after.contains(otherBoxIndex))
+          currentBox.after.add(otherBoxIndex);
       }
     }
     orderObjects.add(currentBox);
@@ -334,7 +345,6 @@ public class MovingBoxPlanner implements PathPlanner {
     return path;
   }
 
-
   /*
    * Extend obstacles to fit the grid w: moving box width
    */
@@ -347,8 +357,6 @@ public class MovingBoxPlanner implements PathPlanner {
     boxesGoal.add(Util.fittedRects(boxesGoal.get(0), gw, margin));
     numExtensions++;
   }
-
-
 
   // index i is to know which inner lists to check
   public GridInfo isObstacle(Point2D p, int listIndex, int boxIndex) {
@@ -378,7 +386,6 @@ public class MovingBoxPlanner implements PathPlanner {
     }
     return new GridInfo(GridType.FREE, -1);
   }
-
 
   class OrderObject {
     int index;
