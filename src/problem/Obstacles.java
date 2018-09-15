@@ -58,13 +58,12 @@ public class Obstacles {
     numExtensions++;
   }
 
-  public GridInfo isObstacle(Point2D p, int listIndex, int boxIndex) {
+  public GridInfo isObstacle(Point2D p, int listIndex, int obstacleIndex) {
     double scalingFactor = Math.pow(2, listIndex - 1);
     double gw = ow / scalingFactor;
     double offset = (scalingFactor - 1) * ow / (scalingFactor * 2);
 
     if (Util.pointOutside(p, ow, offset)) {
-      System.out.println("point outside: " + p.toString());
       return new GridInfo(GridType.STAT_OBS, -1);
     }
     int index;
@@ -82,7 +81,6 @@ public class Obstacles {
     }
 
     if ((index = Util.isInList(boxPaths.get(listIndex), p)) > -1) {
-      System.out.println("mov box path: " + p.toString());
       return new GridInfo(GridType.MOV_BOX_PATH, index);
     }
     return new GridInfo(GridType.FREE, -1);
