@@ -57,8 +57,9 @@ public class Planner {
         RobotConfig currentConfig = ps.getInitialRobotConfig();
         for (int i = 0; i < obstaclePaths.size(); i++) {
             List<Point2D> obstaclePath = obstaclePaths.get(i);
-            if (obstaclePath.size() < 2) continue;
-            
+            if (obstaclePath.size() < 2)
+                continue;
+
             System.out.println(" *** " + i + " *** ");
             obstaclePath.forEach(p -> System.out.println(p));
 
@@ -118,7 +119,7 @@ public class Planner {
             RobotConfig nextConfig = robotConfigFromBoxPos(line.startPosition, line.direction, boxWidth);
             List<Rectangle2D> obstacles = new ArrayList<>();
             obstacles.addAll(staticObstacles);
-            obstacles.add(Util.pointToRect(line.startPosition, robotWidth));
+            obstacles.add(Util.pointToRect(line.startPosition, boxWidth));
             List<RobotConfig> pathToStart = rrt.calculatePath(currentConfig, nextConfig, robotWidth, obstacles);
             if (pathToStart == null) {
                 // ### uncomment to test in visualizer ###
