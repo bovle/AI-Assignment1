@@ -28,7 +28,7 @@
             "classPaths": [
                 "/Users/frederiklund/Documents/School/AI/AI-Assignment1/build/classes"
             ],
-            "args": "inputHard3.txt"
+            "args": "inputHard1.txt"
         },
         {
             "type": "java",

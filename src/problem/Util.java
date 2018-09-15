@@ -43,25 +43,19 @@ public class Util {
         rect.getHeight() + 2 * delta);
   }
   /*
-  public static void normalize(BoxPath path, double offset) {
-    for (Point2D p : path.startPath) {
-      p.setLocation(p.getX() + offset, p.getY() + offset);
-    }
-    for (Point2D p : path.endPath) {
-      p.setLocation(p.getX() + offset, p.getY() + offset);
-    }
-    for (GridNode g : path.gridPath) {
-      Point2D p = g.pos;
-      p.setLocation(p.getX() + offset, p.getY() + offset);
-    }
-  }
-*/
+   * public static void normalize(BoxPath path, double offset) { for (Point2D p :
+   * path.startPath) { p.setLocation(p.getX() + offset, p.getY() + offset); } for
+   * (Point2D p : path.endPath) { p.setLocation(p.getX() + offset, p.getY() +
+   * offset); } for (GridNode g : path.gridPath) { Point2D p = g.pos;
+   * p.setLocation(p.getX() + offset, p.getY() + offset); } }
+   */
 
   public static void normalize(List<GridNode> path, double offset) {
     for (GridNode g : path) {
       g.pos.setLocation(Util.roundToStepSize(g.pos.getX() + offset, 0.000001),
           Util.roundToStepSize(g.pos.getY() + offset, 0.000001));
-      }
+    }
+
   }
 
   public static Point2D getGridCenter(Point2D p, double gw) {
@@ -85,17 +79,17 @@ public class Util {
         || y > 1 - margin - (gridWidth / 2));
   }
 
-
-  /*  Does this work? The point can be a shrinked box and then it is not the center of the box.
-      TODO: make more general with gridwidth instead of robotWidth so it can be used for moving obstacles as well
-  */
+  /*
+   * Does this work? The point can be a shrinked box and then it is not the center
+   * of the box. TODO: make more general with gridwidth instead of robotWidth so
+   * it can be used for moving obstacles as well
+   */
   public static boolean pointOutside(Point2D p, double robotWidth) {
     Rectangle2D box = new Rectangle2D.Double(p.getX() - (robotWidth / 2), p.getY() - (robotWidth / 2), robotWidth,
         robotWidth);
     Rectangle2D border = Util.grow(new Rectangle2D.Double(0, 0, 1, 1), -MAX_ERROR);
     return !border.contains(box);
   }
-
 
   public static List<Rectangle2D> fittedRects(List<Rectangle2D> originalRects, double gw, double margin) {
     List<Rectangle2D> fittedRects = new ArrayList<>();
@@ -123,7 +117,6 @@ public class Util {
     Rectangle2D fittedRect = new Rectangle2D.Double(leftIndex * gw, bottomIndex * gw, fittedWidth, fittedHeight);
     return fittedRect;
   }
-
 
   public static Point2D roundToGrid(Point2D p, double gridWidth) {
     double roundedX = roundToStepSize(p.getX(), gridWidth);
