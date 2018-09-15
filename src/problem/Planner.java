@@ -51,9 +51,10 @@ public class Planner {
         List<List<Point2D>> obstaclePaths = mop.planAllPaths();
         for (int i = 0; i < obstaclePaths.size(); i++) {
             List<Point2D> obstaclePath = obstaclePaths.get(i);
+            //return;
+            System.out.println(" *** " + i + " *** ");
+            obstaclePath.forEach(p -> System.out.println(p));
             return;
-            // System.out.println(" *** " + i + " *** ");
-            // obstaclePath.forEach(p -> System.out.println(p));
         }
 
         RobotConfig currentConfig = ps.getInitialRobotConfig();

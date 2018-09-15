@@ -23,18 +23,23 @@ public class Obstacles {
   public Integer numExtensions;
 
   public Obstacles(MovingBoxPlanner boxPlanner, Integer obstacleIndex, List<List<Rectangle2D>> boxPaths) {
-    this.staticObstacles = boxPlanner.getStaticObstacles();
-    this.movingObstacles = boxPlanner.getMovingObstacles();
-    this.boxesStart = boxPlanner.getBoxesStart();
+    this.staticObstacles = new ArrayList<>();
+    this.movingObstacles = new ArrayList<>();
+    this.boxesStart = new ArrayList<>();
+
+    this.staticObstacles.add(boxPlanner.getStaticObstacles());
+    this.movingObstacles.add(boxPlanner.getMovingObstacles());
+    this.boxesStart.add(boxPlanner.getBoxesStart());
 
     List<Rectangle2D> allPaths = new ArrayList<>();
-    for(List<Rectangle> path : boxPath) {
+    for(List<Rectangle2D> path : boxPaths) {
       allPaths.addAll(path);
     }
     this.boxPaths.add(allPaths);
 
     this.obstacleIndex = obstacleIndex;
-    this.ow = movingObstacles.get(0).get(obstacleIndex).getWidth();
+    if(this.movingObstacles == null) System.out.println("movobs null");
+    this.ow = this.movingObstacles.get(0).get(obstacleIndex).getWidth();
     this.numExtensions = 0;
   }
 

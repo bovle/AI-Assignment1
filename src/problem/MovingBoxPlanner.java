@@ -89,14 +89,14 @@ public class MovingBoxPlanner implements PathPlanner {
 
   }
 
-  public List<List<Rectangle2D>> getMovingObstacles() {
-    return this.movingObstacles;
+  public List<Rectangle2D> getMovingObstacles() {
+    return this.movingObstacles.get(0);
   }
-  public List<List<Rectangle2D>> getStaticObstacles() {
-    return this.staticObstacles;
+  public List<Rectangle2D> getStaticObstacles() {
+    return this.staticObstacles.get(0);
   }
-  public List<List<Rectangle2D>> getBoxesStart() {
-    return this.boxesStart;
+  public List<Rectangle2D> getBoxesStart() {
+    return this.boxesStart.get(0);
   }
 
   // p1 and p2 are the end points of the robot line
