@@ -26,7 +26,13 @@ public class Obstacles {
     this.staticObstacles = boxPlanner.getStaticObstacles();
     this.movingObstacles = boxPlanner.getMovingObstacles();
     this.boxesStart = boxPlanner.getBoxesStart();
-    this.boxPaths = boxPaths;
+
+    List<Rectangle2D> allPaths = new ArrayList<>();
+    for(List<Rectangle> path : boxPath) {
+      allPaths.addAll(path);
+    }
+    this.boxPaths.add(allPaths);
+
     this.obstacleIndex = obstacleIndex;
     this.ow = movingObstacles.get(0).get(obstacleIndex).getWidth();
     this.numExtensions = 0;

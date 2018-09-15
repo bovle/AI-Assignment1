@@ -139,7 +139,7 @@ public class MovingObstaclePlanner implements PathPlanner {
     BFS agent = new BFS();
     /* TODO: figure out how BFS works */
     // List<Point2D> boxPath
-    List<GridNode> midPath = (List<GridNode>) agent.Solve(this, centeredStart, ow, listIndex, boxIndex);
+    List<GridNode> midPath = (List<GridNode>) agent.Solve(this, centeredStart, gw, listIndex, boxIndex);
 
     if (midPath == null)
       return null;
