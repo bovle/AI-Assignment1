@@ -99,45 +99,6 @@ public class MovingBoxPlanner implements PathPlanner {
     return this.boxesStart.get(0);
   }
 
-  // p1 and p2 are the end points of the robot line
-  // public List<Point2D> findNewPath(Point2D p1, Point2D p2, int boxIndex) {
-
-  // System.out.println("Find new path for box #" + boxIndex);
-  // int listIndex = listIndexes[boxIndex];
-  // // temporaryObstacles should be empty before this
-  // double bw = problemSpec.getRobotWidth();
-  // double scalingFactor = Math.pow(2, listIndex - 1);
-  // double gw = bw / scalingFactor;
-
-  // temporaryObstacles.add(pointToObstacle(p1, p2, gw));
-  // List<Rectangle2D> tempObs = new ArrayList<>();
-  // tempObs.add(temporaryObstacles.get(0));
-
-  // for (int i = 1; i <= numExtensions; i++) {
-  // // extend temporary Obstacles
-  // scalingFactor = Math.pow(2, i - 1);
-  // double margin = (scalingFactor - 1) / scalingFactor * bw;
-  // gw = bw / scalingFactor;
-  // // should only be one element in the list
-
-  // Rectangle2D fittedObstacle = fittedRects(tempObs, gw, margin).get(0);
-  // this.temporaryObstacles.add(fittedObstacle);
-  // }
-
-  // for (int i = boxIndex; i < numMovingBoxes; i++) {
-  // atGoal[i] = 0;
-  // }
-
-  // List<Point2D> newPath = findBoxPath(listIndex, boxIndex);
-
-  // for (int i = boxIndex + 1; i < numMovingBoxes; i++) {
-  // atGoal[i] = 1;
-  // }
-  // // clear temporaryObstacles for next time
-  // this.temporaryObstacles = new ArrayList<>();
-
-  // return newPath;
-  // }
 
   public List<List<Point2D>> findAllBoxPaths() {
     List<List<GridNode>> allPaths = new ArrayList<>();
@@ -388,43 +349,15 @@ public class MovingBoxPlanner implements PathPlanner {
   }
 
 
-  private Rectangle2D pointToObstacle(Point2D p1, Point2D p2, double gw) {
-    double x1 = p1.getX();
-    double y1 = p1.getY();
-    double x2 = p2.getX();
-    double y2 = p2.getY();
-    double xDiff = Math.abs(x1 - x2);
-    double yDiff = Math.abs(y1 - y2);
-    double obstacleWidth = gw / 4;
-    double bottom, left, height, width = 0;
-
-    if (xDiff > yDiff) {
-      // line is horizontal ____
-      bottom = y1 - obstacleWidth / 2;
-      left = Math.min(x1, x2);
-      height = obstacleWidth;
-      width = gw;
-    } else {
-      // line is vertical |
-      bottom = Math.min(y1, y2);
-      left = x1 - obstacleWidth / 2;
-      height = gw;
-      width = obstacleWidth;
-    }
-    Rectangle2D tempObstacle = new Rectangle2D.Double(left, bottom, width, height);
-    // todo: make a much smaller rectangular obstacle
-    return tempObstacle;
-  }
-
 
   // index i is to know which inner lists to check
   public GridInfo isObstacle(Point2D p, int listIndex, int boxIndex) {
     double bw = problemSpec.getRobotWidth();
     double scalingFactor = Math.pow(2, listIndex - 1);
     double gw = bw / scalingFactor;
-    double margin = (scalingFactor - 1) / scalingFactor * bw;
+    double offset = (scalingFactor - 1) * bw / (scalingFactor * 2);
 
-    if (Util.pointOutside(p, bw)) {
+    if (Util.pointOutside(p, bw, offset)) {
       return new GridInfo(GridType.STAT_OBS, -1);
     }
     int index;

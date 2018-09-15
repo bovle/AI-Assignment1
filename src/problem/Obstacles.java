@@ -22,30 +22,28 @@ public class Obstacles {
   private List<List<Rectangle2D>> boxPaths;
   public Integer numExtensions;
 
-  public Obstacles(MovingBoxPlanner boxPlanner, Integer obstacleIndex, List<List<Rectangle2D>> boxPaths) {
+  public Obstacles(MovingBoxPlanner boxPlanner, Integer obstacleIndex, List<List<Rectangle2D>> bP) {
     this.staticObstacles = new ArrayList<>();
     this.movingObstacles = new ArrayList<>();
     this.boxesStart = new ArrayList<>();
-
+    this.boxPaths = new ArrayList<>();
     this.staticObstacles.add(boxPlanner.getStaticObstacles());
     this.movingObstacles.add(boxPlanner.getMovingObstacles());
     this.boxesStart.add(boxPlanner.getBoxesStart());
 
     List<Rectangle2D> allPaths = new ArrayList<>();
-    for(List<Rectangle2D> path : boxPaths) {
+    for(List<Rectangle2D> path : bP) {
       allPaths.addAll(path);
     }
     this.boxPaths.add(allPaths);
-
     this.obstacleIndex = obstacleIndex;
-    if(this.movingObstacles == null) System.out.println("movobs null");
     this.ow = this.movingObstacles.get(0).get(obstacleIndex).getWidth();
     this.numExtensions = 0;
   }
 
 
   public void updateObstacle(Point2D p) {
-    Rectangle2D newObstacle = Util.pointToRect(p, ow);
+    Rectangle2D newObstacle = Util.pointToRect(p, ow + 2*MAX_ERROR);
     this.movingObstacles.get(0).remove(obstacleIndex);
     this.movingObstacles.get(0).add(obstacleIndex, newObstacle);
   }
@@ -63,9 +61,9 @@ public class Obstacles {
   public GridInfo isObstacle(Point2D p, int listIndex, int boxIndex) {
     double scalingFactor = Math.pow(2, listIndex - 1);
     double gw = ow / scalingFactor;
-    double margin = (scalingFactor - 1) / scalingFactor * ow;
+    double offset = (scalingFactor - 1) * ow / (scalingFactor * 2);
 
-    if (Util.oldPointOutside(p, margin, gw)) {
+    if (Util.pointOutside(p, ow, offset)) {
       return new GridInfo(GridType.STAT_OBS, -1);
     }
     int index;

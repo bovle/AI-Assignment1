@@ -72,21 +72,14 @@ public class Util {
     return Math.floor(pos / w);
   }
 
-  public static boolean oldPointOutside(Point2D p, double margin, double gridWidth) {
-    double x = p.getX();
-    double y = p.getY();
-    return (x < gridWidth / 2 || x > 1 - margin - (gridWidth / 2) || y < gridWidth / 2
-        || y > 1 - margin - (gridWidth / 2));
-  }
-
   /*
    * Does this work? The point can be a shrinked box and then it is not the center
    * of the box. TODO: make more general with gridwidth instead of robotWidth so
    * it can be used for moving obstacles as well
    */
-  public static boolean pointOutside(Point2D p, double robotWidth) {
-    Rectangle2D box = new Rectangle2D.Double(p.getX() - (robotWidth / 2), p.getY() - (robotWidth / 2), robotWidth,
-        robotWidth);
+  public static boolean pointOutside(Point2D p, double bw, double offset) {
+    Rectangle2D box = new Rectangle2D.Double(p.getX() + offset - (bw / 2), p.getY() + offset - (bw / 2), bw,
+        bw);
     Rectangle2D border = Util.grow(new Rectangle2D.Double(0, 0, 1, 1), -MAX_ERROR);
     return !border.contains(box);
   }
