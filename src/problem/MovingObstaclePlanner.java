@@ -96,7 +96,7 @@ public class MovingObstaclePlanner implements PathPlanner {
         // update obstacle to be at goal position instead?
         Point2D goalPos = path.get(path.size() - 1).pos;
         for (int i = boxIndex; i < numMovingObs; i++) {
-          this.obstacles.get(i).updateObstacle(goalPos);
+          this.obstacles.get(i).updateObstacle(goalPos, boxIndex);
         }
         listIndexes[boxIndex] = listIndex;
       } else {
@@ -136,8 +136,6 @@ public class MovingObstaclePlanner implements PathPlanner {
     Point2D centeredStart = startPath.get(startPath.size() - 1).pos; // get last element in list
 
     BFS agent = new BFS();
-    /* TODO: figure out how BFS works */
-    // List<Point2D> boxPath
     List<GridNode> midPath = (List<GridNode>) agent.Solve(this, centeredStart, gw, listIndex, boxIndex);
 
     if (midPath == null)
@@ -212,7 +210,8 @@ public class MovingObstaclePlanner implements PathPlanner {
     for (List<Point2D> path : boxPaths) {
       List<Rectangle2D> rectanglePath = new ArrayList<>();
       for (Point2D p : path) {
-        Rectangle2D currentRect = Util.pointToRect(p, ow + 2 * MAX_ERROR);
+        Rectangle2D currentRect = Util.pointToRect(p, ow);
+        currentRect = Util.grow(currentRect, MAX_ERROR);
         rectanglePath.add(currentRect);
       }
       allPaths.add(rectanglePath);
