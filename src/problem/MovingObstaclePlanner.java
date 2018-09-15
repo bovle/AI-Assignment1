@@ -207,7 +207,7 @@ public class MovingObstaclePlanner implements PathPlanner {
       List<Rectangle2D> rectanglePath = new ArrayList<>();
       for (Point2D p : path) {
         Rectangle2D currentRect = Util.pointToRect(p, ow);
-        //currentRect = Util.grow(currentRect, MAX_ERROR);
+        currentRect = Util.grow(currentRect, MAX_ERROR);
         rectanglePath.add(currentRect);
       }
       allPaths.add(rectanglePath);
