@@ -37,7 +37,7 @@ public class Obstacles {
     }
     this.boxPaths.add(allPaths);
     this.obstacleIndex = obstacleIndex;
-    this.ow = this.movingObstacles.get(0).get(obstacleIndex).getWidth();
+    this.ow = Util.roundToStepSize(this.movingObstacles.get(0).get(obstacleIndex).getWidth() - 2 * MAX_ERROR, 0.000001);
     this.numExtensions = 0;
   }
 
