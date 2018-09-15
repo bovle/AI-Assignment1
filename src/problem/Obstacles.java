@@ -42,13 +42,13 @@ public class Obstacles {
   }
 
   public void updateObstacle(Point2D p, int changedIndex) {
-    Rectangle2D newObstacle = Util.pointToRect(p, ow);
+    Rectangle2D newObstacle = Util.pointToRect(p, this.ow);
     newObstacle = Util.grow(newObstacle, MAX_ERROR);
     this.movingObstacles.get(0).remove(changedIndex);
     this.movingObstacles.get(0).add(changedIndex, newObstacle);
   }
 
-  public void extendObstacles(double ow, double scalingFactor) {
+  public void extendObstacles(double scalingFactor) {
     double margin = (scalingFactor - 1) / scalingFactor * ow;
     double gw = ow / scalingFactor;
     staticObstacles.add(Util.fittedRects(staticObstacles.get(0), gw, margin));
@@ -83,6 +83,10 @@ public class Obstacles {
     if ((index = Util.isInList(boxPaths.get(listIndex), p)) > -1) {
       return new GridInfo(GridType.MOV_BOX_PATH, index);
     }
+
+    Point2D realPoint = new Point2D.Double(p.getX() + offset, p.getY()+offset);
+    System.out.println("Free point: " + realPoint);
+
     return new GridInfo(GridType.FREE, -1);
   }
 
