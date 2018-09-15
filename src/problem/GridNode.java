@@ -18,7 +18,7 @@ public class GridNode implements Comparable<GridNode> {
    */
   public GridNode(PathPlanner planner, double hCost, Point2D pos, double gridWidth, int listIndex, int boxIndex) {
     this.parent = null;
-    this.gridInfo = new GridInfo(GridType.FREE, -1); /* assuming we don't start on a obstacle */
+    this.gridInfo = planner.isObstacle(pos, listIndex, boxIndex);
     this.gCost = 0;
     this.hCost = hCost;
     this.fCost = this.gCost + this.hCost;
@@ -31,8 +31,8 @@ public class GridNode implements Comparable<GridNode> {
   /**
    * Creates a non-root gridNode,
    */
-  public GridNode(PathPlanner planner, GridNode parent, GridInfo gridInfo, double hCost, Point2D pos,
-      double gridWidth, int listIndex, int boxIndex) {
+  public GridNode(PathPlanner planner, GridNode parent, GridInfo gridInfo, double hCost, Point2D pos, double gridWidth,
+      int listIndex, int boxIndex) {
     this.parent = parent;
     /*
      * gCost: assume the cost increases with the width of the "gridcell" for every

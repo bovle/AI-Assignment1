@@ -123,6 +123,10 @@ public class MovingObstaclePlanner implements PathPlanner {
     Point2D shrinkedStart = new Point2D.Double(originalStartX - offset, originalStartY - offset);
     shrinkedStart = Util.roundToGrid(shrinkedStart, 0.000001);
     GridNode shrinkedStartNode = new GridNode(this, 0, shrinkedStart, gw, listIndex, boxIndex);
+    if (GridType.FREE == shrinkedStartNode.gridInfo.type) {
+      startPath.add(shrinkedStartNode);
+      return startPath;
+    }
 
     startPath = pointToGridCenter(shrinkedStartNode, gw, listIndex, boxIndex);
     if (startPath == null) {
