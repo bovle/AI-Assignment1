@@ -78,9 +78,10 @@ public class Util {
    * it can be used for moving obstacles as well
    */
   public static boolean pointOutside(Point2D p, double bw, double offset) {
-    Rectangle2D box = new Rectangle2D.Double(p.getX() + offset - (bw / 2), p.getY() + offset - (bw / 2), bw,
-        bw);
-    Rectangle2D border = Util.grow(new Rectangle2D.Double(0, 0, 1, 1), -MAX_ERROR);
+    Rectangle2D box = new Rectangle2D.Double(p.getX() + offset - (bw / 2), p.getY() + offset - (bw / 2), bw, bw);
+    Rectangle2D border = new Rectangle2D.Double(0, 0, 1, 1);
+    // border = Util.grow(border, -MAX_ERROR);
+    border = Util.grow(border, MAX_ERROR);
     return !border.contains(box);
   }
 
