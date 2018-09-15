@@ -148,8 +148,16 @@ public class MovingBoxPlanner implements PathPlanner {
     }
 
     for (int boxID = 0; boxID < orderObjects.size(); boxID++) {
+
       int boxIndex = resultOrder.indexOf(boxID);
       OrderObject currentObject = orderObjects.get(boxID);
+      // System.out.println("--- " + currentObject.index + " ---");
+      // System.out.print("before: ");
+      // currentObject.before.forEach(i -> System.out.print(i));
+      // System.out.println();
+      // System.out.print("after: ");
+      // currentObject.after.forEach(i -> System.out.print(i));
+      // System.out.println();
       int highestBeforeIndex = -1;
       for (Integer beforeID : currentObject.before) {
         int beforeIndex = resultOrder.indexOf(beforeID);
@@ -166,6 +174,7 @@ public class MovingBoxPlanner implements PathPlanner {
         if (afterIndex < boxIndex) {
           resultOrder.add(boxIndex + 1, afterID);
           resultOrder.remove(afterIndex);
+          boxIndex = resultOrder.indexOf(boxID);
         }
       }
     }
